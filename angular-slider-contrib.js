@@ -1,7 +1,7 @@
 (function() {
   var ngSliderContrib;
 
-  ngSliderContrib = angular.module('ngSliderContrib', ['ngTouch']);
+  ngSliderContrib = angular.module('ngSliderContrib', ['ngTouch', 'ngSlider']);
 
   ngSliderContrib.directive('sliderProgressBar', function() {
     return {
