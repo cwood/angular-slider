@@ -1,4 +1,4 @@
-ngSliderContrib = angular.module 'ngSliderContrib', ['ngTouch']
+ngSliderContrib = angular.module 'ngSliderContrib', ['ngTouch', 'ngSlider']
 
 ngSliderContrib.directive 'sliderProgressBar', ->
   restrict: 'E',
