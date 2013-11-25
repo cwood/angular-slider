@@ -153,10 +153,10 @@
       controller: function($scope, $element, $attrs, $interval) {
         var _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
         $scope.$viewport = $element;
-        $scope.$viewport.slideMultiple = (_ref = $attrs.slideMultiple) != null ? _ref : false;
-        $scope.defaultWidth = (_ref1 = $attrs.defaultWidth) != null ? _ref1 : false;
-        $scope.widthOfWindow = (_ref2 = $attrs.widthOfWindow) != null ? _ref2 : false;
-        $scope.autoScroll = (_ref3 = $attrs.autoScroll) != null ? _ref3 : false;
+        $scope.$viewport.slideMultiple = (_ref = $scope.$eval($attrs.slideMultiple)) != null ? _ref : false;
+        $scope.autoScroll = (_ref1 = $scope.$eval($attrs.autoScroll)) != null ? _ref1 : false;
+        $scope.defaultWidth = (_ref2 = $attrs.defaultWidth) != null ? _ref2 : false;
+        $scope.widthOfWindow = (_ref3 = $attrs.widthOfWindow) != null ? _ref3 : false;
         $scope.autoScrollSpeed = (_ref4 = $attrs.autoScrollSpeed) != null ? _ref4 : 5000;
         if ($scope.autoScroll) {
           $scope.autoScrollSpeed = $attrs.autoScrollSpeed;
