@@ -141,10 +141,11 @@ slider.directive 'sliderViewport', ->
   controller: ($scope, $element, $attrs, $interval) ->
     $scope.$viewport = $element
 
-    $scope.$viewport.slideMultiple = $attrs.slideMultiple ? false
+    $scope.$viewport.slideMultiple = $scope.$eval($attrs.slideMultiple) ? false
+    $scope.autoScroll = $scope.$eval($attrs.autoScroll) ? false
+
     $scope.defaultWidth = $attrs.defaultWidth ? false
     $scope.widthOfWindow = $attrs.widthOfWindow ? false
-    $scope.autoScroll = $attrs.autoScroll ? false
     $scope.autoScrollSpeed = $attrs.autoScrollSpeed ? 5000
 
     if $scope.autoScroll

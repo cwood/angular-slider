@@ -1,4 +1,4 @@
-describe "the core slider ", ->
+describe "core slider", ->
 
   slider = $scope = null
 
