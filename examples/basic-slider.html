@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Basic Angular Slider</title>
+		<meta charset="utf-8" />
+		<script src="/bower_components/jquery/jquery.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/bower_components/angular/angular.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/bower_components/angular-touch/angular-touch.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/compiled/angular-slider.js" type="text/javascript" charset="utf-8"></script>
+</head>
+<body data-ng-app='ngSlider'>
+    <header>
+			Basic Slider
+		</header>
+		<section>
+
+			<div slider>
+				<div data-ng-click='nextSlide()'>Next Slide</div>
+				<slider-viewport>
+					<li slide>
+						<h1>Slide A</h1>
+					</li>
+					<li slide>
+						<h1>Slide B</h1>
+					</li>
+					<li slide>
+						<h1>Slide C</h1>
+					</li>
+				</slider-viewport>
+				<div data-ng-click='prevSlide()'>Prev Slide</div>
+			</div>
+		</section>
+</body>
+</html>
