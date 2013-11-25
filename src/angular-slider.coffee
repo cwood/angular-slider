@@ -163,7 +163,6 @@ slider.directive 'sliderViewport', ->
       parseInt(element.css('margin-left')) + parseInt(element.css('margin-right'))
     ) || 0
 
-
 slider.directive 'slide', ->
   restrict: 'A'
   scope: true
