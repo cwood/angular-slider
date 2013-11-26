@@ -35,7 +35,7 @@ module.exports = (grunt) ->
       options:
         files: ['package.json', 'bower.json']
         commit: true
-        commitFiles: ['-a']
+        commitFiles: ['angular-slider.js', 'angular-slider-contrib.js']
         createTag: true
         push: false
     karma:
