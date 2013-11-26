@@ -21,9 +21,6 @@ slider.directive 'slider', ->
           ->
            $scope.activeSlides = $scope.getActiveSlides()
 
-      $scope.$watch 'slides.length', ->
-        $scope.activeSlides = $scope.getActiveSlides()
-
       $scope.getActiveSlides = ->
 
         activeSlides = (slide for slide in $scope.slides when slide.$element.is(":visible"))
@@ -38,14 +35,16 @@ slider.directive 'slider', ->
 
       $scope.$watch 'slides.length', ->
 
-        for slide in $scope.slides
+        $scope.activeSlides = $scope.getActiveSlides()
+
+        for slide in $scope.activeSlides
           $scope.totalWidth += slide.getWidth()
 
       angular.element($window).bind 'orientationchange resize', ->
         $scope.totalWidth = 0
 
-        for slide in $scope.slides
-          $scope.totalWidth += slide.$element.outerWidth(true)
+        for slide in $scope.activeSlides
+          $scope.totalWidth += slide.getWidth()
 
         currentSlide = $scope.getCurrentSlide()
         leftPosition = 0
@@ -55,7 +54,7 @@ slider.directive 'slider', ->
           if slide == currentSlide
             break
 
-          leftPosition += slide.$element.outerWidth(true)
+          leftPosition += slide.getWidth()
 
         $scope.leftPosition = -(leftPosition)
 
@@ -69,18 +68,18 @@ slider.directive 'slider', ->
         leftPosition = 0
         index = 0
 
-        for slide in $scope.slides
+        for slide in $scope.activeSlides
 
           if slide == manualSlide
             break
 
           index += 1
-          leftPosition += slide.$element.outerWidth(true)
+          leftPosition += slide.getWidth()
 
         $scope.leftPosition = -(leftPosition)
         $scope.currentIndex = index
 
-      $scope.nextSlide = ($event) ->
+      $scope.nextSlide = () ->
         slide = $scope.activeSlides[$scope.currentIndex + 1]
 
         if $scope.$viewport.slideMultiple
@@ -101,7 +100,7 @@ slider.directive 'slider', ->
             slide = null
 
         if slide
-          $scope.leftPosition -= slide.$element.outerWidth(true)
+          $scope.leftPosition -= slide.getWidth()
           $scope.currentIndex += 1
 
       $scope.$watch 'currentIndex', ->
@@ -158,12 +157,6 @@ slider.directive 'sliderViewport', ->
         ,
           $scope.autoScrollSpeed ? 5000
 
-  link: (scope, element, attrs, prntCtrl) ->
-
-    scope.totalWidth += parseInt(
-      parseInt(element.css('margin-left')) + parseInt(element.css('margin-right'))
-    ) || 0
-
 slider.directive 'slide', ->
   restrict: 'A'
   scope: true
@@ -204,7 +197,7 @@ slider.directive 'slide', ->
     $element.width($scope.getWidth())
 
     $element.css
-      display: 'inline-block' # Probably dont need this.
+      display: if $element.css('display') != 'none' then 'inline-block' else 'none'
       float: 'left'
 
     angular.element($window).bind 'orientationchange resize', ->
