@@ -27,7 +27,6 @@ module.exports = (grunt) ->
     watch:
       options:
         atBegin: true
-        livereload: true
       coffee:
         files: ['src/*.litcoffee', 'src/*.coffee', 'tests/*.coffee']
         tasks: ['coffee']
