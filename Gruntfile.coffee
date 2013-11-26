@@ -41,7 +41,11 @@ module.exports = (grunt) ->
     karma:
       unit:
         configFile: 'karma.config.js'
+        browsers: ['Chrome']
+      travis:
+        configFile: 'karma.config.js'
         singleRun: true
+        browsers: ['Firefox']
 
   # Load grunt plugins
   grunt.loadNpmTasks 'grunt-contrib-coffee'
@@ -53,7 +57,8 @@ module.exports = (grunt) ->
   # Define tasks.
   grunt.registerTask 'serve', ['connect:server', 'watch']
   grunt.registerTask 'build', ['coffee']
-  grunt.registerTask 'test', ['coffee:compile', 'coffee:tests', 'karma']
+  grunt.registerTask 'test', ['coffee:compile', 'coffee:tests', 'karma:unit']
+  grunt.registerTask 'test:travis', ['coffee:compile', 'coffee:tests', 'karma:travis']
   grunt.registerTask 'version:patch', ['build', 'bump:patch']
   grunt.registerTask 'version:minor', ['build', 'bump:minor']
   grunt.registerTask 'version:major', ['build', 'bump:major']
