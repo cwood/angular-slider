@@ -41,6 +41,7 @@ module.exports = (grunt) ->
     karma:
       unit:
         configFile: 'karma.config.js'
+        singleRun: true
 
   # Load grunt plugins
   grunt.loadNpmTasks 'grunt-contrib-coffee'
