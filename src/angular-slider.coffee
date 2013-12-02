@@ -15,7 +15,7 @@ slider.directive 'slider', ->
         slide.$element = element
         $scope.slides.push slide
 
-        if $scope.defaultWidth != false
+        if $scope.defaultWidth == false
           $scope.$watch ->
               return slide.$element.is(':visible')
           ,
@@ -26,43 +26,42 @@ slider.directive 'slider', ->
 
       $scope.getActiveSlides = ->
 
-        activeSlides = (slide for slide in $scope.slides when (slide.$element.is(":visible") or $scope.defaultWidth != false ))
+        activeSlides = []
 
-        if _activeSlides? == activeSlides
+        for slide in $scope.slides
+          if $scope.defaultWidth and not $scope.$viewport.is(':visible')
+            activeSlides.push slide
+          else if slide.$element.is(':visible')
+            activeSlides.push slide
+
+        if $scope._activeSlides? == activeSlides
           return activeSlides
         else
-          _activeSlides = activeSlides
+          $scope._activeSlides = activeSlides
           $scope.currentIndex = 0
           $scope.leftPosition = 0
-          return _activeSlides
+          return activeSlides
+
+      $scope.$watch 'totalWidth', ->
+        $scope.totalWidth = Math.ceil($scope.totalWidth)  # Round up
 
       $scope.$watch 'slides.length', ->
 
         $scope.activeSlides = $scope.getActiveSlides()
 
         for slide in $scope.activeSlides
-          $scope.totalWidth += slide.getWidth()
+          $scope.totalWidth += slide.$element.outerWidth(true)
 
       angular.element($window).bind 'orientationchange resize', ->
         $scope.totalWidth = 0
-
         $scope.activeSlides = $scope.getActiveSlides()
 
         for slide in $scope.activeSlides
-          $scope.totalWidth += slide.getWidth()
+          $scope.totalWidth += slide.$element.outerWidth(true)
 
         currentSlide = $scope.getCurrentSlide()
-        leftPosition = 0
 
-        for slide in $scope.slides
-
-          if slide == currentSlide
-            break
-
-          leftPosition += slide.getWidth()
-
-        $scope.leftPosition = -(leftPosition)
-
+        $scope.goToSlide($scope.getCurrentSlide())
         $scope.$digest() # Apply digest so we can recalc the width
 
       $scope.getCurrentSlide = ->
@@ -79,7 +78,7 @@ slider.directive 'slider', ->
             break
 
           index += 1
-          leftPosition += slide.getWidth()
+          leftPosition += slide.$element.outerWidth(true)
 
         $scope.leftPosition = -(leftPosition)
         $scope.currentIndex = index
@@ -91,10 +90,9 @@ slider.directive 'slider', ->
 
           totalInView = ($scope.$viewport.width() / slide.$element.outerWidth(true))
           totalLeft = Math.round(totalInView) - totalInView
-
           slide = $scope.activeSlides[$scope.currentIndex + Math.round(totalInView)]
 
-          if not slide and not $scope.isLastSlide
+          if not slide and $scope.isLastSlide
             slide = $scope.activeSlides[$scope.activeSlides.length - 1]
 
             if (totalLeft * 100) > 10
@@ -105,7 +103,7 @@ slider.directive 'slider', ->
             slide = null
 
         if slide
-          $scope.leftPosition -= slide.getWidth()
+          $scope.leftPosition -= slide.$element.outerWidth(true)
           $scope.currentIndex += 1
 
       $scope.$watch 'currentIndex', ->
@@ -120,7 +118,6 @@ slider.directive 'slider', ->
         if $scope.isLastSlide and not angular.isUndefined($scope.offsetLeft)
           $scope.leftPosition += $scope.offsetLeft
           $scope.offsetLeft = null # set back to null
-
           $scope.isLastSlide = false
 
         if slide
@@ -171,6 +168,9 @@ slider.directive 'slide', ->
     $scope.responsiveWidth = {}
 
     $scope.addSlide $scope, $element
+
+    $scope.isActive = ->
+      return $element.is(':visbile')
 
     $scope.getResponsiveWidth = ->
 
