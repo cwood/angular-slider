@@ -82,7 +82,7 @@
           return $scope.$digest();
         });
         $scope.getCurrentSlide = function() {
-          return $scope.slides[$scope.currentIndex];
+          return $scope.activeSlides[$scope.currentIndex];
         };
         $scope.goToSlide = function(manualSlide) {
           var index, leftPosition, slide, _i, _len, _ref;
@@ -176,21 +176,31 @@
     return {
       restrict: 'A',
       scope: true,
-      controller: function($scope, $element, $attrs, $window, $document) {
+      controller: function($scope, $element, $attrs, $window, $document, $log) {
         $scope.isResponsive = false;
         $scope.responsiveWidth = {};
         $scope.addSlide($scope, $element);
         $scope.getResponsiveWidth = function() {
-          var _topWidth;
-          _topWidth = 0;
+          var responsiveWidth, _topWidth;
+          _topWidth = angular.element($window).width();
           angular.forEach($scope.responsiveWidth, function(slideInPercent, width) {
             var intWidth;
             intWidth = parseInt(width);
-            if (angular.element($window).width() <= intWidth) {
+            if (angular.element($window).width() >= intWidth && _topWidth >= intWidth) {
               return _topWidth = intWidth;
             }
           });
-          return (parseInt($scope.$slider.outerWidth(true))) * (parseInt($scope.responsiveWidth[_topWidth + 'px']) / 100);
+          if (_topWidth === angular.element($window).width()) {
+            angular.forEach($scope.responsiveWidth, function(slideInPercent, width) {
+              var intWidth;
+              intWidth = parseInt(width);
+              if (angular.element($window).width() <= intWidth && _topWidth <= intWidth) {
+                return _topWidth = intWidth;
+              }
+            });
+          }
+          responsiveWidth = parseInt($scope.responsiveWidth[_topWidth + 'px']);
+          return parseInt($scope.$slider.outerWidth(true)) * (responsiveWidth / 100);
         };
         $scope.getWidth = function() {
           var elementCssWidth;
