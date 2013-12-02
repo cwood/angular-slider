@@ -22,9 +22,6 @@
             return $scope.activeSlides = $scope.getActiveSlides();
           });
         };
-        $scope.$watch('slides.length', function() {
-          return $scope.activeSlides = $scope.getActiveSlides();
-        });
         $scope.getActiveSlides = function() {
           var activeSlides, slide, _activeSlides;
           activeSlides = (function() {
@@ -50,7 +47,8 @@
         };
         $scope.$watch('slides.length', function() {
           var slide, _i, _len, _ref, _results;
-          _ref = $scope.slides;
+          $scope.activeSlides = $scope.getActiveSlides();
+          _ref = $scope.activeSlides;
           _results = [];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             slide = _ref[_i];
@@ -61,10 +59,10 @@
         angular.element($window).bind('orientationchange resize', function() {
           var currentSlide, leftPosition, slide, _i, _j, _len, _len1, _ref, _ref1;
           $scope.totalWidth = 0;
-          _ref = $scope.slides;
+          _ref = $scope.activeSlides;
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             slide = _ref[_i];
-            $scope.totalWidth += slide.$element.outerWidth(true);
+            $scope.totalWidth += slide.getWidth();
           }
           currentSlide = $scope.getCurrentSlide();
           leftPosition = 0;
@@ -74,7 +72,7 @@
             if (slide === currentSlide) {
               break;
             }
-            leftPosition += slide.$element.outerWidth(true);
+            leftPosition += slide.getWidth();
           }
           $scope.leftPosition = -leftPosition;
           return $scope.$digest();
@@ -86,19 +84,19 @@
           var index, leftPosition, slide, _i, _len, _ref;
           leftPosition = 0;
           index = 0;
-          _ref = $scope.slides;
+          _ref = $scope.activeSlides;
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             slide = _ref[_i];
             if (slide === manualSlide) {
               break;
             }
             index += 1;
-            leftPosition += slide.$element.outerWidth(true);
+            leftPosition += slide.getWidth();
           }
           $scope.leftPosition = -leftPosition;
           return $scope.currentIndex = index;
         };
-        $scope.nextSlide = function($event) {
+        $scope.nextSlide = function() {
           var slide, totalInView, totalLeft;
           slide = $scope.activeSlides[$scope.currentIndex + 1];
           if ($scope.$viewport.slideMultiple) {
@@ -116,7 +114,7 @@
             }
           }
           if (slide) {
-            $scope.leftPosition -= slide.$element.outerWidth(true);
+            $scope.leftPosition -= slide.getWidth();
             return $scope.currentIndex += 1;
           }
         };
@@ -166,9 +164,6 @@
             }
           }, (_ref5 = $scope.autoScrollSpeed) != null ? _ref5 : 5000);
         }
-      },
-      link: function(scope, element, attrs, prntCtrl) {
-        return scope.totalWidth += parseInt(parseInt(element.css('margin-left')) + parseInt(element.css('margin-right'))) || 0;
       }
     };
   });
@@ -204,14 +199,15 @@
           if ($scope.$viewport.slideMultiple && !$scope.isResponsive) {
             elementCssWidth = $element.outerWidth(true);
             return parseInt(elementCssWidth);
-          } else {
+          }
+          if ($scope.$viewport.slideMultiple && $scope.isResponsive) {
             return $scope.getResponsiveWidth();
           }
           return $scope.$viewport.outerWidth(true);
         };
         $element.width($scope.getWidth());
         $element.css({
-          display: 'inline-block',
+          display: $element.css('display') !== 'none' ? 'inline-block' : 'none',
           float: 'left'
         });
         angular.element($window).bind('orientationchange resize', function() {
