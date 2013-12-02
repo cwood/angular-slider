@@ -16,11 +16,15 @@
         $scope.addSlide = function(slide, element) {
           slide.$element = element;
           $scope.slides.push(slide);
-          return $scope.$watch(function() {
-            return slide.$element.is(':visible');
-          }, function() {
+          if ($scope.defaultWidth !== false) {
+            return $scope.$watch(function() {
+              return slide.$element.is(':visible');
+            }, function() {
+              return $scope.activeSlides = $scope.getActiveSlides();
+            });
+          } else {
             return $scope.activeSlides = $scope.getActiveSlides();
-          });
+          }
         };
         $scope.getActiveSlides = function() {
           var activeSlides, slide, _activeSlides;
@@ -30,7 +34,7 @@
             _results = [];
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               slide = _ref[_i];
-              if (slide.$element.is(":visible")) {
+              if (slide.$element.is(":visible") || $scope.defaultWidth !== false) {
                 _results.push(slide);
               }
             }
