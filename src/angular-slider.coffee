@@ -46,6 +46,8 @@ slider.directive 'slider', ->
       angular.element($window).bind 'orientationchange resize', ->
         $scope.totalWidth = 0
 
+        $scope.activeSlides = $scope.getActiveSlides()
+
         for slide in $scope.activeSlides
           $scope.totalWidth += slide.getWidth()
 
@@ -176,24 +178,26 @@ slider.directive 'slide', ->
       # if we dont find one then we keep going up until we get the
       # biggest size we can.
 
-      _topWidth = angular.element($window).width()
+      _topWidth = 0
 
       angular.forEach $scope.responsiveWidth, (slideInPercent, width) ->
         intWidth = parseInt(width)
 
-        if angular.element($window).width() >= intWidth and _topWidth >= intWidth
-          _topWidth = intWidth
+        if angular.element($window).width() <= intWidth
+          _topWidth = intWidth + 'px'
 
-      if _topWidth == angular.element($window).width()
+      if _topWidth == 0
+        hasDefault = $scope.responsiveWidth['default']
+        if angular.isDefined(hasDefault)
+          _topWidth = 'default'
+        else
+          # get the highest max-width and use that
+          angular.forEach $scope.responsiveWidth, (slideInPercent, width) ->
+            intWidth = parseInt(width)
+            if intWidth >= parseInt(_topWidth)
+              _topWidth = intWidth + 'px'
 
-        angular.forEach $scope.responsiveWidth, (slideInPercent, width) ->
-          intWidth = parseInt(width)
-
-          if angular.element($window).width() <= intWidth and _topWidth <= intWidth
-            _topWidth = intWidth
-
-
-      responsiveWidth = parseInt($scope.responsiveWidth[_topWidth+'px'])
+      responsiveWidth = parseInt($scope.responsiveWidth[_topWidth])
       return (parseInt($scope.$slider.outerWidth(true)) * ((responsiveWidth) / 100))
 
     $scope.getWidth = ->
@@ -231,6 +235,6 @@ slider.directive 'slide', ->
 
         $scope.isResponsive = true
 
-        width = key.split('maxWidth')[1]
+        width = key.split('maxWidth')[1].toLowerCase() # if this is a string lower it
         slideInPercent = value
         $scope.responsiveWidth[width] = value
