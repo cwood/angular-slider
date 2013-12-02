@@ -100,3 +100,48 @@ describe "hidden slides", ->
 
     expect($scope.isLastSlide).toBe true
     expect($scope.isFirstSlide).toBe false
+
+
+describe "hidden slider at start with default slides", ->
+
+  slider = $scope = null
+
+  beforeEach module('ngSlider')
+
+  beforeEach inject ($compile, $rootScope) ->
+    $scope = $rootScope.$new()
+    element = angular.element(
+      """
+        <div slider>
+          <div data-ng-click='nextSlide()'>Next Slide</div>
+          <slider-viewport slide-multiple='true' style='overflow: hidden; width: 600px; margin: 0; display: none;' default-width="150px" >
+            <li slide>
+              <h1>Slide A</h1>
+            </li>
+            <li slide>
+              <h1>Slide B</h1>
+            </li>
+            <li slide>
+              <h1>Slide C</h1>
+            </li>
+            <li slide>
+              <h1>Slide D</h1>
+            </li>
+            <li slide>
+              <h1>Slide E</h1>
+            </li>
+          </slider-viewport>
+          <div data-ng-click='prevSlide()'>Prev Slide</div>
+        </div>
+      """)
+
+    slider = $compile(element)($scope)
+    $('body').html(slider)
+    slider.scope().$apply()
+    $scope = slider.scope()
+
+  it "should still have 5 active slides even though slider is hidden", ->
+    expect($scope.getActiveSlides().length).toBe 5
+
+  it "should have a total width of 150 * 5 slides", ->
+    expect($scope.totalWidth).toBe 150*5

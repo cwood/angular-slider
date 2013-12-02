@@ -26,7 +26,7 @@ describe "core slider", ->
       """)
 
     slider = $compile(element)($scope)
-    $(slider).appendTo('body')
+    $('body').html(slider)
     slider.scope().$apply()
 
     $scope = slider.scope()
@@ -101,3 +101,11 @@ describe "core slider", ->
     $scope.$apply() # since we are running this through karma
 
     expect($scope.isLastSlide).toBe true
+
+  it "should still have 3 active slides when viewport is hidden", ->
+    $scope.$viewport.hide()
+    expect($scope.activeSlides.length).toBe 3
+
+  it "it should still have a total widh of 450px when the viewport is hidden", ->
+    $scope.$viewport.hide()
+    expect($scope.totalWidth).toBe 450

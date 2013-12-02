@@ -15,15 +15,18 @@ slider.directive 'slider', ->
         slide.$element = element
         $scope.slides.push slide
 
-        $scope.$watch ->
-          return slide.$element.is(':visible')
-        ,
-          ->
-           $scope.activeSlides = $scope.getActiveSlides()
+        if $scope.defaultWidth != false
+          $scope.$watch ->
+              return slide.$element.is(':visible')
+          ,
+            ->
+             $scope.activeSlides = $scope.getActiveSlides()
+        else
+          $scope.activeSlides = $scope.getActiveSlides()
 
       $scope.getActiveSlides = ->
 
-        activeSlides = (slide for slide in $scope.slides when slide.$element.is(":visible"))
+        activeSlides = (slide for slide in $scope.slides when (slide.$element.is(":visible") or $scope.defaultWidth != false ))
 
         if _activeSlides? == activeSlides
           return activeSlides
