@@ -189,7 +189,8 @@ slider.directive 'slide', ->
       if $scope.$viewport.slideMultiple and not $scope.isResponsive
         elementCssWidth = $element.outerWidth(true)
         return parseInt(elementCssWidth)
-      else
+
+      if $scope.$viewport.slideMultiple and $scope.isResponsive
         return $scope.getResponsiveWidth()
 
       return $scope.$viewport.outerWidth(true)
