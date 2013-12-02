@@ -64,7 +64,7 @@ slider.directive 'slider', ->
         $scope.$digest() # Apply digest so we can recalc the width
 
       $scope.getCurrentSlide = ->
-        return $scope.slides[$scope.currentIndex]
+        return $scope.activeSlides[$scope.currentIndex]
 
       $scope.goToSlide= (manualSlide) ->
 
@@ -163,7 +163,7 @@ slider.directive 'sliderViewport', ->
 slider.directive 'slide', ->
   restrict: 'A'
   scope: true
-  controller: ($scope, $element, $attrs, $window, $document) ->
+  controller: ($scope, $element, $attrs, $window, $document, $log) ->
 
     $scope.isResponsive = false
     $scope.responsiveWidth = {}
@@ -172,14 +172,29 @@ slider.directive 'slide', ->
 
     $scope.getResponsiveWidth = ->
 
-      _topWidth = 0
+      # First we go down in sizes tell we find one that matches
+      # if we dont find one then we keep going up until we get the
+      # biggest size we can.
+
+      _topWidth = angular.element($window).width()
 
       angular.forEach $scope.responsiveWidth, (slideInPercent, width) ->
         intWidth = parseInt(width)
-        if angular.element($window).width() <= intWidth
+
+        if angular.element($window).width() >= intWidth and _topWidth >= intWidth
           _topWidth = intWidth
 
-      return (parseInt($scope.$slider.outerWidth(true))) * (parseInt($scope.responsiveWidth[_topWidth+'px']) / 100)
+      if _topWidth == angular.element($window).width()
+
+        angular.forEach $scope.responsiveWidth, (slideInPercent, width) ->
+          intWidth = parseInt(width)
+
+          if angular.element($window).width() <= intWidth and _topWidth <= intWidth
+            _topWidth = intWidth
+
+
+      responsiveWidth = parseInt($scope.responsiveWidth[_topWidth+'px'])
+      return (parseInt($scope.$slider.outerWidth(true)) * ((responsiveWidth) / 100))
 
     $scope.getWidth = ->
 
