@@ -94,7 +94,7 @@ describe "hidden slides", ->
   it "the first slide should be active", ->
     expect($scope.isFirstSlide).toBe true
 
-  it "when on the last active slide last slide should be true", ->
+  it "when on the last active slide isLastSlide should be true", ->
     $scope.goToSlide($scope.activeSlides[$scope.activeSlides.length - 1])
     $scope.$apply()
 
