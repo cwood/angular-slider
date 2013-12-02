@@ -16,7 +16,7 @@
         $scope.addSlide = function(slide, element) {
           slide.$element = element;
           $scope.slides.push(slide);
-          if ($scope.defaultWidth !== false) {
+          if ($scope.defaultWidth === false) {
             return $scope.$watch(function() {
               return slide.$element.is(':visible');
             }, function() {
@@ -27,28 +27,29 @@
           }
         };
         $scope.getActiveSlides = function() {
-          var activeSlides, slide, _activeSlides;
-          activeSlides = (function() {
-            var _i, _len, _ref, _results;
-            _ref = $scope.slides;
-            _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              slide = _ref[_i];
-              if (slide.$element.is(":visible") || $scope.defaultWidth !== false) {
-                _results.push(slide);
-              }
+          var activeSlides, slide, _i, _len, _ref;
+          activeSlides = [];
+          _ref = $scope.slides;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            slide = _ref[_i];
+            if ($scope.defaultWidth && !$scope.$viewport.is(':visible')) {
+              activeSlides.push(slide);
+            } else if (slide.$element.is(':visible')) {
+              activeSlides.push(slide);
             }
-            return _results;
-          })();
-          if ((typeof _activeSlides !== "undefined" && _activeSlides !== null) === activeSlides) {
+          }
+          if (($scope._activeSlides != null) === activeSlides) {
             return activeSlides;
           } else {
-            _activeSlides = activeSlides;
+            $scope._activeSlides = activeSlides;
             $scope.currentIndex = 0;
             $scope.leftPosition = 0;
-            return _activeSlides;
+            return activeSlides;
           }
         };
+        $scope.$watch('totalWidth', function() {
+          return $scope.totalWidth = Math.ceil($scope.totalWidth);
+        });
         $scope.$watch('slides.length', function() {
           var slide, _i, _len, _ref, _results;
           $scope.activeSlides = $scope.getActiveSlides();
@@ -56,29 +57,21 @@
           _results = [];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             slide = _ref[_i];
-            _results.push($scope.totalWidth += slide.getWidth());
+            _results.push($scope.totalWidth += slide.$element.outerWidth(true));
           }
           return _results;
         });
         angular.element($window).bind('orientationchange resize', function() {
-          var currentSlide, leftPosition, slide, _i, _j, _len, _len1, _ref, _ref1;
+          var currentSlide, slide, _i, _len, _ref;
           $scope.totalWidth = 0;
+          $scope.activeSlides = $scope.getActiveSlides();
           _ref = $scope.activeSlides;
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             slide = _ref[_i];
-            $scope.totalWidth += slide.getWidth();
+            $scope.totalWidth += slide.$element.outerWidth(true);
           }
           currentSlide = $scope.getCurrentSlide();
-          leftPosition = 0;
-          _ref1 = $scope.slides;
-          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-            slide = _ref1[_j];
-            if (slide === currentSlide) {
-              break;
-            }
-            leftPosition += slide.getWidth();
-          }
-          $scope.leftPosition = -leftPosition;
+          $scope.goToSlide($scope.getCurrentSlide());
           return $scope.$digest();
         });
         $scope.getCurrentSlide = function() {
@@ -95,7 +88,7 @@
               break;
             }
             index += 1;
-            leftPosition += slide.getWidth();
+            leftPosition += slide.$element.outerWidth(true);
           }
           $scope.leftPosition = -leftPosition;
           return $scope.currentIndex = index;
@@ -107,7 +100,7 @@
             totalInView = $scope.$viewport.width() / slide.$element.outerWidth(true);
             totalLeft = Math.round(totalInView) - totalInView;
             slide = $scope.activeSlides[$scope.currentIndex + Math.round(totalInView)];
-            if (!slide && !$scope.isLastSlide) {
+            if (!slide && $scope.isLastSlide) {
               slide = $scope.activeSlides[$scope.activeSlides.length - 1];
               if ((totalLeft * 100) > 10) {
                 $scope.offsetLeft = slide.$element.outerWidth(true) * totalLeft;
@@ -118,7 +111,7 @@
             }
           }
           if (slide) {
-            $scope.leftPosition -= slide.getWidth();
+            $scope.leftPosition -= slide.$element.outerWidth(true);
             return $scope.currentIndex += 1;
           }
         };
@@ -180,26 +173,34 @@
         $scope.isResponsive = false;
         $scope.responsiveWidth = {};
         $scope.addSlide($scope, $element);
+        $scope.isActive = function() {
+          return $element.is(':visbile');
+        };
         $scope.getResponsiveWidth = function() {
-          var responsiveWidth, _topWidth;
-          _topWidth = angular.element($window).width();
+          var hasDefault, responsiveWidth, _topWidth;
+          _topWidth = 0;
           angular.forEach($scope.responsiveWidth, function(slideInPercent, width) {
             var intWidth;
             intWidth = parseInt(width);
-            if (angular.element($window).width() >= intWidth && _topWidth >= intWidth) {
-              return _topWidth = intWidth;
+            if (angular.element($window).width() <= intWidth) {
+              return _topWidth = intWidth + 'px';
             }
           });
-          if (_topWidth === angular.element($window).width()) {
-            angular.forEach($scope.responsiveWidth, function(slideInPercent, width) {
-              var intWidth;
-              intWidth = parseInt(width);
-              if (angular.element($window).width() <= intWidth && _topWidth <= intWidth) {
-                return _topWidth = intWidth;
-              }
-            });
+          if (_topWidth === 0) {
+            hasDefault = $scope.responsiveWidth['default'];
+            if (angular.isDefined(hasDefault)) {
+              _topWidth = 'default';
+            } else {
+              angular.forEach($scope.responsiveWidth, function(slideInPercent, width) {
+                var intWidth;
+                intWidth = parseInt(width);
+                if (intWidth >= parseInt(_topWidth)) {
+                  return _topWidth = intWidth + 'px';
+                }
+              });
+            }
           }
-          responsiveWidth = parseInt($scope.responsiveWidth[_topWidth + 'px']);
+          responsiveWidth = parseInt($scope.responsiveWidth[_topWidth]);
           return parseInt($scope.$slider.outerWidth(true)) * (responsiveWidth / 100);
         };
         $scope.getWidth = function() {
@@ -235,7 +236,7 @@
           var slideInPercent, width;
           if (key.indexOf('maxWidth') === 0) {
             $scope.isResponsive = true;
-            width = key.split('maxWidth')[1];
+            width = key.split('maxWidth')[1].toLowerCase();
             slideInPercent = value;
             return $scope.responsiveWidth[width] = value;
           }
