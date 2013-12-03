@@ -198,7 +198,7 @@ slider.directive 'slide', ->
               _topWidth = intWidth + 'px'
 
       responsiveWidth = parseInt($scope.responsiveWidth[_topWidth])
-      return (parseInt($scope.$slider.outerWidth(true)) * ((responsiveWidth) / 100))
+      return Math.round(parseInt($scope.$slider.outerWidth(true)) * ((responsiveWidth) / 100))
 
     $scope.getWidth = ->
 
