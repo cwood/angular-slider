@@ -54,6 +54,8 @@ describe "core slider", ->
     activeSlide = $scope.getCurrentSlide()
     expect(activeSlide).toBe($scope.activeSlides[1])
 
+    expect($scope.leftPosition).toBe -150
+
   it 'should allow us to move to the prev slide', ->
     $scope.nextSlide()
     activeSlide = $scope.getCurrentSlide()

@@ -134,7 +134,7 @@ slider.directive 'sliderViewport', ->
     <div class='angular-slider-viewport'>
       <ul data-ng-swipe-left='nextSlide($event);stopScroll=true'
           data-ng-swipe-right='prevSlide($event);stopScroll=true'
-          data-ng-style='getViewportStyle()'
+          data-ng-style='{"left": leftPosition + "px", "position": "relative", "width": totalWidth + "px"}'
           data-ng-transclude>
       </ul>
     </div>
@@ -158,13 +158,6 @@ slider.directive 'sliderViewport', ->
             $scope.nextSlide()
         ,
           $scope.autoScrollSpeed ? 5000
-
-    $scope.getViewportStyle = ->
-      return {
-        left: $scope.leftPostion + 'px'
-        position: 'relative'
-        width: $scope.totalWidth + 'px'
-      }
 
 slider.directive 'slide', ->
   restrict: 'A'
