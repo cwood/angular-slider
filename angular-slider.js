@@ -144,7 +144,7 @@
       require: '^slider',
       transclude: true,
       replace: true,
-      template: "    <div class='angular-slider-viewport'>      <ul data-ng-swipe-left='nextSlide($event);stopScroll=true'          data-ng-swipe-right='prevSlide($event);stopScroll=true'          style='left: {{leftPosition}}px; position: relative; width: {{totalWidth}}px;'          data-ng-transclude>      </ul>    </div>    ",
+      template: "<div class='angular-slider-viewport'>\n  <ul data-ng-swipe-left='nextSlide($event);stopScroll=true'\n      data-ng-swipe-right='prevSlide($event);stopScroll=true'\n      data-ng-style='getViewportStyle()'\n      data-ng-transclude>\n  </ul>\n</div>",
       controller: function($scope, $element, $attrs, $interval) {
         var _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
         $scope.$viewport = $element;
@@ -155,12 +155,19 @@
         $scope.autoScrollSpeed = (_ref4 = $attrs.autoScrollSpeed) != null ? _ref4 : 5000;
         if ($scope.autoScroll) {
           $scope.autoScrollSpeed = $attrs.autoScrollSpeed;
-          return $interval(function() {
+          $interval(function() {
             if (!$scope.stopScroll) {
               return $scope.nextSlide();
             }
           }, (_ref5 = $scope.autoScrollSpeed) != null ? _ref5 : 5000);
         }
+        return $scope.getViewportStyle = function() {
+          return {
+            left: $scope.leftPostion + 'px',
+            position: 'relative',
+            width: $scope.totalWidth + 'px'
+          };
+        };
       }
     };
   });
