@@ -12,15 +12,17 @@ Directives
 Three basic directives:
 
 * ``slider``
-** Overall controller of the slider. Most of the calculations are done here
-** This is a attribute used on a element
+   * Overall controller of the slider. Most of the calculations are done here
+   * This is a attribute used on a element
+
 * ``slider-viewport``
-** Options and other confugration are set on this element
-** This is a html element. This also allows transclusion. So you can use
-   ng-repeat to get slides from backend.
+   * Options and other confugration are set on this element
+   * This is a html element. This also allows transclusion. So you can use
+     ng-repeat to get slides from backend.
+
 * ``slide``
-** Model used for calculation width, and setting a responsive width.
-** This is a attribute on a element.
+   * Model used for calculation width, and setting a responsive width.
+   * This is a attribute on a element.
 
 Api
 ----------------------------
