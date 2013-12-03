@@ -1,6 +1,6 @@
 {
   "name": "angular-slider",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "dependencies": {
     "angular": "~1.2.x",
     "angular-touch": "~1.2.x",

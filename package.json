@@ -1,6 +1,6 @@
 {
   "name": "angularslider",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "dependencies": {},
   "devDependencies": {
     "coffee-script": "~1.6.3",
