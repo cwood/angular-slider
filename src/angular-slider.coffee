@@ -107,10 +107,25 @@ slider.directive 'slider', ->
           $scope.currentIndex += 1
 
       $scope.$watch 'currentIndex', ->
+        totalInView = ($scope.$viewport.width() / slide.$element.outerWidth(true))
+        totalLeft = Math.round(totalInView) - totalInView
+        return [totalInView, totalLeft]
+
+      $scope.$watch 'currentIndex', (oldIndex, newIndex) ->
         currentSlide = $scope.getCurrentSlide()
 
-        $scope.isLastSlide = (if currentSlide == $scope.activeSlides[$scope.activeSlides.length - 1] then true else false)
         $scope.isFirstSlide = (if currentSlide == $scope.activeSlides[0] then true else false)
+
+        if not $scope.$viewport.slideMultiple
+          $scope.isLastSlide = (if currentSlide == $scope.activeSlides[$scope.activeSlides.length - 1] then true else false)
+        else
+          [totalInView, totalLeft] = $scope.countInViewPort(currentSlide)
+          if totalLeft <= 0 and totalInView >= $scope.activeSlides.length
+            $scope.isLastSlide = true
+          else if not $scope.activeSlides[$scope.currentIndex + Math.round(totalInView)]
+            $scope.isLastSlide = true
+          else
+            $scope.isLastSlide = false
 
       $scope.prevSlide = ($event) ->
         slide = $scope.activeSlides[$scope.currentIndex - 1]
