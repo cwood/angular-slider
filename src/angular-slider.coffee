@@ -6,9 +6,6 @@ slider.directive 'slider', ->
     controller: ($scope, $element, $window, $interval) ->
       $scope.slides = []
       $scope.leftPosition = $scope.currentIndex = $scope.totalWidth= 0
-      $scope.isLastSlide = false
-      $scope.isFirstSlide = true
-
       $scope.$slider = $element
 
       $scope.addSlide = (slide, element) ->
@@ -24,6 +21,14 @@ slider.directive 'slider', ->
         else
           $scope.activeSlides = $scope.getActiveSlides()
 
+      arraysAreEqual = (a, b) ->
+        return true if a is b
+        return false if not a or not b
+        return false if a.length isnt b.length
+        for el, i in a
+          return false if el isnt b[i]
+        true
+
       $scope.getActiveSlides = ->
 
         activeSlides = []
@@ -34,13 +39,14 @@ slider.directive 'slider', ->
           else if slide.$element.is(':visible')
             activeSlides.push slide
 
-        if $scope._activeSlides? == activeSlides
+        if arraysAreEqual activeSlides, $scope._activeSlides ? []
           return activeSlides
         else
           $scope._activeSlides = activeSlides
           $scope.currentIndex = 0
           $scope.leftPosition = 0
           return activeSlides
+
 
       $scope.$watch 'totalWidth', ->
         $scope.totalWidth = Math.ceil($scope.totalWidth)  # Round up
@@ -88,8 +94,7 @@ slider.directive 'slider', ->
 
         if $scope.$viewport.slideMultiple
 
-          totalInView = ($scope.$viewport.width() / slide.$element.outerWidth(true))
-          totalLeft = Math.round(totalInView) - totalInView
+          [totalInView, totalLeft] = $scope.countInViewPort(slide)
           slide = $scope.activeSlides[$scope.currentIndex + Math.round(totalInView)]
 
           if not slide and $scope.isLastSlide
@@ -106,7 +111,7 @@ slider.directive 'slider', ->
           $scope.leftPosition -= slide.$element.outerWidth(true)
           $scope.currentIndex += 1
 
-      $scope.$watch 'currentIndex', ->
+      $scope.countInViewPort = (slide) ->
         totalInView = ($scope.$viewport.width() / slide.$element.outerWidth(true))
         totalLeft = Math.round(totalInView) - totalInView
         return [totalInView, totalLeft]
