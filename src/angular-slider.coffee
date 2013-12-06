@@ -67,7 +67,8 @@ slider.directive 'slider', ->
 
         currentSlide = $scope.getCurrentSlide()
 
-        $scope.goToSlide($scope.getCurrentSlide())
+        $scope.goToSlide($scope.getCurrentSlide()) # Go to the users current slide
+        $scope.setSlidePositions() # Set isFirst and isLast Slides.
         $scope.$digest() # Apply digest so we can recalc the width
 
       $scope.getCurrentSlide = ->
@@ -116,7 +117,7 @@ slider.directive 'slider', ->
         totalLeft = Math.round(totalInView) - totalInView
         return [totalInView, totalLeft]
 
-      $scope.$watch 'currentIndex', (oldIndex, newIndex) ->
+      $scope.setSlidePositions = (oldIndex, newIndex) ->
         currentSlide = $scope.getCurrentSlide()
 
         $scope.isFirstSlide = (if currentSlide == $scope.activeSlides[0] then true else false)
@@ -131,6 +132,9 @@ slider.directive 'slider', ->
             $scope.isLastSlide = true
           else
             $scope.isLastSlide = false
+
+      $scope.$watch 'currentIndex', (oldIndex, newIndex) ->
+        $scope.setSlidePositions(oldIndex, newIndex)
 
       $scope.prevSlide = ($event) ->
         slide = $scope.activeSlides[$scope.currentIndex - 1]
