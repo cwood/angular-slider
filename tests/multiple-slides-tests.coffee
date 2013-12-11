@@ -1,4 +1,4 @@
-describe "multiple slides off the viewport", ->
+describe "Multiple Slides Off The Viewport: ", ->
 
   slider = $scope = null
 
@@ -50,9 +50,9 @@ describe "multiple slides off the viewport", ->
     expect($scope.leftPosition).toBe(-150)
 
   it "should be on the first slide and not the last slide", ->
-    console.log $scope.countInViewPort($scope.getCurrentSlide())
     expect($scope.isFirstSlide).toBe true
     expect($scope.isLastSlide).toBe false
+
 
 describe "multiple slides in the viewport", ->
 

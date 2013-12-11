@@ -1,10 +1,13 @@
 describe "responsive slider", ->
 
   slider = $scope = $window = null
+  currentHeight = 600
+  currentWidth = 900
 
   beforeEach module('ngSlider')
 
   beforeEach inject ($compile, $rootScope, $window) ->
+
     $scope = $rootScope.$new()
     element = angular.element(
       """
