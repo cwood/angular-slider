@@ -128,6 +128,8 @@ slider.directive 'slider', ->
           [totalInView, totalLeft] = $scope.countInViewPort(currentSlide)
           if totalLeft <= 0 and totalInView >= $scope.activeSlides.length
             $scope.isLastSlide = true
+          else if totalLeft > 0.0
+            $scope.isLastSlide = false
           else if not $scope.activeSlides[$scope.currentIndex + Math.round(totalInView)]
             $scope.isLastSlide = true
           else
