@@ -39,10 +39,10 @@ module.exports = (grunt) ->
         push: false
     karma:
       unit:
-        configFile: 'karma.config.js'
+        configFile: 'karma.config.coffee'
         browsers: ['Chrome']
       travis:
-        configFile: 'karma.config.js'
+        configFile: 'karma.config.coffee'
         singleRun: true
         browsers: ['Firefox']
 
