@@ -3,10 +3,11 @@ slider = angular.module('ngSlider', ['ngTouch'])
 slider.directive 'slider', ->
     restrict: 'A'
     scope: true
-    controller: ($scope, $element, $window, $interval) ->
-      $scope.slides = []
+    controller: ($scope, $element, $window, $timeout) ->
+      $scope.slides = $scope.activeSlides = []
       $scope.leftPosition = $scope.currentIndex = $scope.totalWidth= 0
       $scope.$slider = $element
+      $scope.isResizing = false
 
       $scope.addSlide = (slide, element) ->
         slide.$element = element
@@ -17,9 +18,15 @@ slider.directive 'slider', ->
               return slide.$element.is(':visible')
           ,
             ->
-             $scope.activeSlides = $scope.getActiveSlides()
+             $scope.setActiveSlides()
+
+          $scope.$watch ->
+            return slide.$element.outerWidth(true)
+          ,
+            ->
+              $scope.isResizing = true
         else
-          $scope.activeSlides = $scope.getActiveSlides()
+          $scope.setActiveSlides()
 
       arraysAreEqual = (a, b) ->
         return true if a is b
@@ -29,7 +36,7 @@ slider.directive 'slider', ->
           return false if el isnt b[i]
         true
 
-      $scope.getActiveSlides = ->
+      $scope.setActiveSlides = (recalcWidth) ->
 
         activeSlides = []
 
@@ -39,49 +46,44 @@ slider.directive 'slider', ->
           else if slide.$element.is(':visible')
             activeSlides.push slide
 
-        if arraysAreEqual activeSlides, $scope._activeSlides ? []
-          return activeSlides
-        else
-          $scope._activeSlides = activeSlides
-          $scope.currentIndex = 0
-          $scope.leftPosition = 0
-          return activeSlides
+        if not arraysAreEqual activeSlides, $scope.activeSlides ? []
+          $scope.activeSlides = activeSlides
 
+        if recalcWidth is true
+          $scope.activeSlides = activeSlides
+          $scope.$apply()
 
-      $scope.$watch 'totalWidth', ->
-        $scope.totalWidth = Math.ceil($scope.totalWidth)  # Round up
+      $scope.$watch 'activeSlides', (oldSlides, newSlides) ->
+
+        totalWidth = 0
+
+        for slide in $scope.activeSlides
+            totalWidth += slide.$element.outerWidth(true)
+
+        if not arraysAreEqual oldSlides, newSlides
+          $scope.leftPosition = $scope.currentIndex = 0
+
+        $scope.totalWidth = totalWidth
 
       $scope.$watch 'slides.length', ->
+        $scope.setActiveSlides()
 
-        $scope.activeSlides = $scope.getActiveSlides()
-
-        for slide in $scope.activeSlides
-          $scope.totalWidth += slide.$element.outerWidth(true)
-
-      angular.element($window).bind 'orientationchange resize', ->
-        $scope.totalWidth = 0
-        $scope.activeSlides = $scope.getActiveSlides()
-
-        for slide in $scope.activeSlides
-          $scope.totalWidth += slide.$element.outerWidth(true)
-
-        currentSlide = $scope.getCurrentSlide()
-
+      angular.element($window).bind 'resize orientationchange', _.debounce( ->
+        $scope.setActiveSlides(true)
         $scope.goToSlide($scope.getCurrentSlide()) # Go to the users current slide
-        $scope.setSlidePositions() # Set isFirst and isLast Slides.
-        $scope.$digest() # Apply digest so we can recalc the width
+        $scope.setButtonsActivity() # Set the buttons after resize.
+      , 500)
 
       $scope.getCurrentSlide = ->
         return $scope.activeSlides[$scope.currentIndex]
 
       $scope.goToSlide= (manualSlide) ->
 
-        leftPosition = 0
-        index = 0
+        leftPosition = index = 0
 
         for slide in $scope.activeSlides
 
-          if slide == manualSlide
+          if slide is manualSlide
             break
 
           index += 1
@@ -96,15 +98,15 @@ slider.directive 'slider', ->
         if $scope.$viewport.slideMultiple
 
           [totalInView, totalLeft] = $scope.countInViewPort(slide)
-          slide = $scope.activeSlides[$scope.currentIndex + Math.round(totalInView)]
+          slide = $scope.activeSlides[$scope.currentIndex + Math.ceil(totalInView)]
 
-          if not slide and $scope.isLastSlide
+          if not slide and not $scope.offsetLeft
             slide = $scope.activeSlides[$scope.activeSlides.length - 1]
 
-            if (totalLeft * 100) > 10
+            if (totalLeft * 100) > 1 # Has to be greater than a percentage
               $scope.offsetLeft = (slide.$element.outerWidth(true) * (totalLeft))
+              $scope.currentIndex += 1
               $scope.leftPosition -= $scope.offsetLeft
-              $scope.isLastSlide = true
 
             slide = null
 
@@ -114,41 +116,42 @@ slider.directive 'slider', ->
 
       $scope.countInViewPort = (slide) ->
         totalInView = ($scope.$viewport.width() / slide.$element.outerWidth(true))
-        totalLeft = Math.round(totalInView) - totalInView
+        totalLeft = Math.ceil(totalInView) - totalInView # Always round up
         return [totalInView, totalLeft]
 
-      $scope.setSlidePositions = (oldIndex, newIndex) ->
+      $scope.setButtonsActivity = ->
         currentSlide = $scope.getCurrentSlide()
 
-        $scope.isFirstSlide = (if currentSlide == $scope.activeSlides[0] then true else false)
+        $scope.isFirstSlide = (if currentSlide is $scope.activeSlides[0] then true else false)
 
         if not $scope.$viewport.slideMultiple
-          $scope.isLastSlide = (if currentSlide == $scope.activeSlides[$scope.activeSlides.length - 1] then true else false)
+          $scope.isLastSlide = (if currentSlide is $scope.activeSlides[$scope.activeSlides.length - 1] then true else false)
         else
           [totalInView, totalLeft] = $scope.countInViewPort(currentSlide)
-          if totalLeft <= 0 and totalInView >= $scope.activeSlides.length
+          if totalInView >= $scope.activeSlides.length
             $scope.isLastSlide = true
-          else if totalLeft > 0.0
+          else if totalLeft >= 0.0 and not $scope.offsetLeft
             $scope.isLastSlide = false
-          else if not $scope.activeSlides[$scope.currentIndex + Math.round(totalInView)]
+          else if not $scope.activeSlides[$scope.currentIndex + Math.ceil(totalInView)]
             $scope.isLastSlide = true
           else
             $scope.isLastSlide = false
 
-      $scope.$watch 'currentIndex', (oldIndex, newIndex) ->
-        $scope.setSlidePositions(oldIndex, newIndex)
+      $scope.$watch 'activeSlides + currentIndex', (oldSlides, newSlides) ->
+        $scope.setButtonsActivity()
 
       $scope.prevSlide = ($event) ->
         slide = $scope.activeSlides[$scope.currentIndex - 1]
 
-        if $scope.isLastSlide and not angular.isUndefined($scope.offsetLeft)
+        if $scope.offsetLeft
           $scope.leftPosition += $scope.offsetLeft
           $scope.offsetLeft = null # set back to null
-          $scope.isLastSlide = false
-
-        if slide
+          $scope.currentIndex -= 1
+        else if slide
           $scope.leftPosition += slide.$element.outerWidth(true)
           $scope.currentIndex -= 1
+          if slide is $scope.activeSlides[0] and $scope.leftPosition != 0
+            $scope.leftPosition = 0
 
 slider.directive 'sliderViewport', ->
   restrict: 'E'
@@ -224,7 +227,7 @@ slider.directive 'slide', ->
               _topWidth = intWidth + 'px'
 
       responsiveWidth = parseInt($scope.responsiveWidth[_topWidth])
-      return Math.round(parseInt($scope.$slider.outerWidth(true)) * ((responsiveWidth) / 100))
+      return parseInt($scope.$slider.outerWidth(true)) * ((responsiveWidth) / 100.00)
 
     $scope.getWidth = ->
 
@@ -243,7 +246,7 @@ slider.directive 'slide', ->
 
       return $scope.$viewport.outerWidth(true)
 
-    $element.width($scope.getWidth())
+    $element.width(Math.round($scope.getWidth()))
 
     $element.css
       display: if $element.css('display') != 'none' then 'inline-block' else 'none'
@@ -253,7 +256,7 @@ slider.directive 'slide', ->
       if not $scope.isResponsive
         $element.width($scope.getWidth())
       else
-        $element.width($scope.getResponsiveWidth())
+        $element.width(Math.round($scope.getResponsiveWidth()))
 
     angular.forEach $attrs, (value, key) ->
 

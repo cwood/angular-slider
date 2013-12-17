@@ -37,12 +37,8 @@ describe "core slider", ->
   it 'should have 3 active slides', ->
     expect($scope.activeSlides.length).toBe 3
 
-  it 'should take the active slides from its cache', ->
-    expect($scope._activeSlides).toEqual $scope.getActiveSlides()
-
   it 'should keep active slides even on the next slide', ->
     $scope.nextSlide()
-    expect($scope._activeSlides).toEqual $scope.getActiveSlides()
     expect($scope.currentIndex).toBe 1
     expect($scope.leftPosition).toBe -150
 

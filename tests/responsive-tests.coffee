@@ -1,6 +1,6 @@
 describe "responsive slider", ->
 
-  slider = $scope = $window = null
+  slider = $scope = $windowElm = null
   currentHeight = 600
   currentWidth = 900
 
@@ -13,7 +13,7 @@ describe "responsive slider", ->
       """
         <div slider>
           <div data-ng-click='nextSlide()'>Next Slide</div>
-          <slider-viewport default-width="150px">
+          <slider-viewport default-width="150px" style='width: 100%'>
             <li slide max-width-600px='33%' max-width-360px='100%' max-width-default='25%'>
               <h1>Slide A</h1>
             </li>
@@ -46,7 +46,7 @@ describe "responsive slider", ->
 
   it 'should adjust to current window size and it should be 25%', ->
     slide = $scope.getCurrentSlide()
-    expect(slide.getResponsiveWidth()).toBe(Math.round($scope.$viewport.width() * .25))
+    expect(slide.getResponsiveWidth()).toBe(Math.ceil($scope.$viewport.width() * .25))
 
 
 describe "responsive slider without default", ->

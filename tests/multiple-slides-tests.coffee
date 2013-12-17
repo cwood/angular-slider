@@ -1,4 +1,4 @@
-describe "Multiple Slides Off The Viewport: ", ->
+describe "Multiple Slides Off The Viewport:", ->
 
   slider = $scope = null
 
@@ -138,7 +138,7 @@ describe "hidden slides", ->
   it "the first slide should be active", ->
     expect($scope.isFirstSlide).toBe true
 
-  it "when on the last active slide isLastSlide should be true", ->
+  it "when on the last active slide isLastSlide should be true and isFirstSlide should be true", ->
     $scope.goToSlide($scope.activeSlides[$scope.activeSlides.length - 1])
     $scope.$apply()
 
@@ -185,7 +185,7 @@ describe "hidden slider at start with default slides", ->
     $scope = slider.scope()
 
   it "should still have 5 active slides even though slider is hidden", ->
-    expect($scope.getActiveSlides().length).toBe 5
+    expect($scope.activeSlides.length).toBe 5
 
   it "should have a total width of 150 * 5 slides", ->
     expect($scope.totalWidth).toBe 150*5
