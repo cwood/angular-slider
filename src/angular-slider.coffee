@@ -97,43 +97,41 @@ slider.directive 'slider', ->
 
         if $scope.$viewport.slideMultiple
 
-          [totalInView, totalLeft] = $scope.countInViewPort(slide)
-          slide = $scope.activeSlides[$scope.currentIndex + Math.ceil(totalInView)]
+          [totalInView, totalLeft] = $scope.countInViewPort()
+          slide = $scope.activeSlides[$scope.currentIndex + totalInView]
 
-          if not slide and not $scope.offsetLeft
-            slide = $scope.activeSlides[$scope.activeSlides.length - 1]
+          if slide
+            $scope.currentIndex += 1
 
-            if (totalLeft * 100) > 1 # Has to be greater than a percentage
-              $scope.offsetLeft = (slide.$element.outerWidth(true) * (totalLeft))
-              $scope.currentIndex += 1
-              $scope.leftPosition -= $scope.offsetLeft
+            if slide == $scope.activeSlides[$scope.activeSlides.length - 1]
+              $scope.leftPosition -= totalLeft
+            else
+              $scope.leftPosition -= slide.$element.outerWidth(true)
 
-            slide = null
-
-        if slide
+        else if slide
           $scope.leftPosition -= slide.$element.outerWidth(true)
           $scope.currentIndex += 1
 
       $scope.countInViewPort = ->
 
         canGetIntoView = 0
-        currentPosition = $scope.currentIndex
+        currentPosition = 0
 
-        for slide in $scope.activeSlides[currentPosition .. $scope.activeSlides.length]
+        for slide in $scope.activeSlides[$scope.currentIndex .. $scope.activeSlides.length - 1]
           canGetIntoView += slide.$element.outerWidth(true)
-          if canGetIntoView >= $scope.$viewport.width()
+          if canGetIntoView > $scope.$viewport.width()
             canGetIntoView -= slide.$element.outerWidth(true) # Remove since this is out of viewport
             break
           currentPosition += 1
 
-        outOfViewportSlide = $scope.activeSlides[currentPosition + 1]
+        outOfViewportSlide = $scope.activeSlides[currentPosition]
 
         if angular.isUndefined(outOfViewportSlide)
           totalLeft = 0
         else
-          totalLeft = Math.ceil(canGetIntoView) - outOfViewportSlide.$element.outerWidth(true) # Always round up
+          offSetBy = (canGetIntoView + outOfViewportSlide.$element.outerWidth(true)) - $scope.$viewport.width()
 
-        return [currentPosition, totalLeft]
+        return [currentPosition, offSetBy]
 
       $scope.setButtonsActivity = ->
         currentSlide = $scope.getCurrentSlide()
@@ -146,12 +144,12 @@ slider.directive 'slider', ->
           [totalInView, totalLeft] = $scope.countInViewPort()
           if totalInView >= $scope.activeSlides.length
             $scope.isLastSlide = true
-          else if totalLeft >= 0.0 and not $scope.offsetLeft
-            $scope.isLastSlide = false
           else if not $scope.activeSlides[$scope.currentIndex + Math.ceil(totalInView)]
             $scope.isLastSlide = true
-          else
+          else if totalLeft <= 0
             $scope.isLastSlide = true
+          else if totalLeft >= 0
+            $scope.isLastSlide = false
 
       $scope.$watch 'activeSlides + currentIndex', (oldSlides, newSlides) ->
         $scope.setButtonsActivity()
