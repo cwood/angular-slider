@@ -113,28 +113,42 @@
           var slide, totalInView, totalLeft, _ref;
           slide = $scope.activeSlides[$scope.currentIndex + 1];
           if ($scope.$viewport.slideMultiple) {
-            _ref = $scope.countInViewPort(slide), totalInView = _ref[0], totalLeft = _ref[1];
-            slide = $scope.activeSlides[$scope.currentIndex + Math.ceil(totalInView)];
-            if (!slide && !$scope.offsetLeft) {
-              slide = $scope.activeSlides[$scope.activeSlides.length - 1];
-              if ((totalLeft * 100) > 1) {
-                $scope.offsetLeft = slide.$element.outerWidth(true) * totalLeft;
-                $scope.currentIndex += 1;
-                $scope.leftPosition -= $scope.offsetLeft;
+            _ref = $scope.countInViewPort(), totalInView = _ref[0], totalLeft = _ref[1];
+            slide = $scope.activeSlides[$scope.currentIndex + totalInView];
+            if (slide) {
+              $scope.currentIndex += 1;
+              if (slide === $scope.activeSlides[$scope.activeSlides.length - 1]) {
+                return $scope.leftPosition -= totalLeft;
+              } else {
+                return $scope.leftPosition -= slide.$element.outerWidth(true);
               }
-              slide = null;
             }
-          }
-          if (slide) {
+          } else if (slide) {
             $scope.leftPosition -= slide.$element.outerWidth(true);
             return $scope.currentIndex += 1;
           }
         };
-        $scope.countInViewPort = function(slide) {
-          var totalInView, totalLeft;
-          totalInView = $scope.$viewport.width() / slide.$element.outerWidth(true);
-          totalLeft = Math.ceil(totalInView) - totalInView;
-          return [totalInView, totalLeft];
+        $scope.countInViewPort = function() {
+          var canGetIntoView, currentPosition, offSetBy, outOfViewportSlide, slide, totalLeft, _i, _len, _ref;
+          canGetIntoView = 0;
+          currentPosition = 0;
+          _ref = $scope.activeSlides.slice($scope.currentIndex, +($scope.activeSlides.length - 1) + 1 || 9e9);
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            slide = _ref[_i];
+            canGetIntoView += slide.$element.outerWidth(true);
+            if (canGetIntoView > $scope.$viewport.width()) {
+              canGetIntoView -= slide.$element.outerWidth(true);
+              break;
+            }
+            currentPosition += 1;
+          }
+          outOfViewportSlide = $scope.activeSlides[currentPosition];
+          if (angular.isUndefined(outOfViewportSlide)) {
+            totalLeft = 0;
+          } else {
+            offSetBy = (canGetIntoView + outOfViewportSlide.$element.outerWidth(true)) - $scope.$viewport.width();
+          }
+          return [currentPosition, offSetBy];
         };
         $scope.setButtonsActivity = function() {
           var currentSlide, totalInView, totalLeft, _ref;
@@ -143,14 +157,14 @@
           if (!$scope.$viewport.slideMultiple) {
             return $scope.isLastSlide = (currentSlide === $scope.activeSlides[$scope.activeSlides.length - 1] ? true : false);
           } else {
-            _ref = $scope.countInViewPort(currentSlide), totalInView = _ref[0], totalLeft = _ref[1];
+            _ref = $scope.countInViewPort(), totalInView = _ref[0], totalLeft = _ref[1];
             if (totalInView >= $scope.activeSlides.length) {
               return $scope.isLastSlide = true;
-            } else if (totalLeft >= 0.0 && !$scope.offsetLeft) {
-              return $scope.isLastSlide = false;
             } else if (!$scope.activeSlides[$scope.currentIndex + Math.ceil(totalInView)]) {
               return $scope.isLastSlide = true;
-            } else {
+            } else if (totalLeft <= 0) {
+              return $scope.isLastSlide = true;
+            } else if (totalLeft >= 0) {
               return $scope.isLastSlide = false;
             }
           }
@@ -255,7 +269,7 @@
             return parseInt(elementCssWidth);
           }
           if ($scope.$viewport.slideMultiple && $scope.isResponsive) {
-            return $scope.getResponsiveWidth();
+            return Math.round($scope.getResponsiveWidth());
           }
           return $scope.$viewport.outerWidth(true);
         };
