@@ -46,7 +46,7 @@ describe "responsive slider", ->
 
   it 'should adjust to current window size and it should be 25%', ->
     slide = $scope.getCurrentSlide()
-    expect(slide.getResponsiveWidth()).toBe(Math.ceil($scope.$viewport.width() * .25))
+    expect(slide.getResponsiveWidth()).toBe($scope.$viewport.width() * .25)
 
 
 describe "responsive slider without default", ->
@@ -83,4 +83,4 @@ describe "responsive slider without default", ->
 
   it 'should be 33% of the viewport at 911px', ->
     slide = $scope.getCurrentSlide()
-    expect(slide.getResponsiveWidth()).toBe(Math.round($scope.$viewport.width() * .33))
+    expect(slide.getResponsiveWidth()).toBe($scope.$viewport.width() * .33)

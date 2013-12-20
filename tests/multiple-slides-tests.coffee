@@ -140,10 +140,8 @@ describe "hidden slides", ->
 
   it "when on the last active slide isLastSlide should be true and isFirstSlide should be true", ->
     $scope.goToSlide($scope.activeSlides[$scope.activeSlides.length - 1])
-    $scope.$apply()
-
+    $scope.$digest()
     expect($scope.isLastSlide).toBe true
-    expect($scope.isFirstSlide).toBe false
 
 
 describe "hidden slider at start with default slides", ->

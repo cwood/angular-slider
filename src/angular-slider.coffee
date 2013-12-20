@@ -114,10 +114,26 @@ slider.directive 'slider', ->
           $scope.leftPosition -= slide.$element.outerWidth(true)
           $scope.currentIndex += 1
 
-      $scope.countInViewPort = (slide) ->
-        totalInView = ($scope.$viewport.width() / slide.$element.outerWidth(true))
-        totalLeft = Math.ceil(totalInView) - totalInView # Always round up
-        return [totalInView, totalLeft]
+      $scope.countInViewPort = ->
+
+        canGetIntoView = 0
+        currentPosition = $scope.currentIndex
+
+        for slide in $scope.activeSlides[currentPosition .. $scope.activeSlides.length]
+          canGetIntoView += slide.$element.outerWidth(true)
+          if canGetIntoView >= $scope.$viewport.width()
+            canGetIntoView -= slide.$element.outerWidth(true) # Remove since this is out of viewport
+            break
+          currentPosition += 1
+
+        outOfViewportSlide = $scope.activeSlides[currentPosition + 1]
+
+        if angular.isUndefined(outOfViewportSlide)
+          totalLeft = 0
+        else
+          totalLeft = Math.ceil(canGetIntoView) - outOfViewportSlide.$element.outerWidth(true) # Always round up
+
+        return [currentPosition, totalLeft]
 
       $scope.setButtonsActivity = ->
         currentSlide = $scope.getCurrentSlide()
@@ -127,7 +143,7 @@ slider.directive 'slider', ->
         if not $scope.$viewport.slideMultiple
           $scope.isLastSlide = (if currentSlide is $scope.activeSlides[$scope.activeSlides.length - 1] then true else false)
         else
-          [totalInView, totalLeft] = $scope.countInViewPort(currentSlide)
+          [totalInView, totalLeft] = $scope.countInViewPort()
           if totalInView >= $scope.activeSlides.length
             $scope.isLastSlide = true
           else if totalLeft >= 0.0 and not $scope.offsetLeft
@@ -135,7 +151,7 @@ slider.directive 'slider', ->
           else if not $scope.activeSlides[$scope.currentIndex + Math.ceil(totalInView)]
             $scope.isLastSlide = true
           else
-            $scope.isLastSlide = false
+            $scope.isLastSlide = true
 
       $scope.$watch 'activeSlides + currentIndex', (oldSlides, newSlides) ->
         $scope.setButtonsActivity()
@@ -242,7 +258,7 @@ slider.directive 'slide', ->
         return parseInt(elementCssWidth)
 
       if $scope.$viewport.slideMultiple and $scope.isResponsive
-        return $scope.getResponsiveWidth()
+        return Math.round($scope.getResponsiveWidth())
 
       return $scope.$viewport.outerWidth(true)
 
