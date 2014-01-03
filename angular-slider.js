@@ -95,19 +95,34 @@
           return $scope.activeSlides[$scope.currentIndex];
         };
         $scope.goToSlide = function(manualSlide) {
-          var index, leftPosition, slide, _i, _len, _ref;
-          leftPosition = index = 0;
-          _ref = $scope.activeSlides;
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            slide = _ref[_i];
-            if (slide === manualSlide) {
-              break;
+          var isSlide, leftPosition, slide, slideIndex, totalInView, totalLeft, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+          leftPosition = 0;
+          _ref = $scope.countInViewPort(), totalInView = _ref[0], totalLeft = _ref[1];
+          slideIndex = _.indexOf($scope.activeSlides, manualSlide);
+          isSlide = $scope.activeSlides[slideIndex + totalInView];
+          if (!angular.isUndefined(isSlide) && $scope.currentIndex !== 0) {
+            _ref1 = $scope.activeSlides;
+            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+              slide = _ref1[_i];
+              if (slide === $scope.activeSlides[$scope.activeSlides.length - 1]) {
+                leftPosition += totalLeft;
+              } else if (slide === manualSlide) {
+                break;
+              } else {
+                leftPosition += slide.$element.outerWidth(true);
+              }
             }
-            index += 1;
-            leftPosition += slide.$element.outerWidth(true);
+          } else if (slideIndex === 0) {
+            leftPosition = 0;
+          } else {
+            _ref2 = $scope.activeSlides.slice(0, +slideIndex + 1 || 9e9);
+            for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+              slide = _ref2[_j];
+              leftPosition += slide.$element.outerWidth(true);
+            }
           }
-          $scope.leftPosition = -leftPosition;
-          return $scope.currentIndex = index;
+          $scope.currentIndex = slideIndex;
+          return $scope.leftPosition = -leftPosition;
         };
         $scope.nextSlide = function() {
           var slide, totalInView, totalLeft, _ref;
@@ -129,7 +144,7 @@
           }
         };
         $scope.countInViewPort = function() {
-          var canGetIntoView, currentPosition, offSetBy, outOfViewportSlide, slide, totalLeft, _i, _len, _ref;
+          var canGetIntoView, canGetIntoViewMinusPadding, currentPosition, offSetBy, outOfViewportSlide, slide, _i, _len, _ref;
           canGetIntoView = 0;
           currentPosition = 0;
           _ref = $scope.activeSlides.slice($scope.currentIndex, +($scope.activeSlides.length - 1) + 1 || 9e9);
@@ -138,13 +153,18 @@
             canGetIntoView += slide.$element.outerWidth(true);
             if (canGetIntoView > $scope.$viewport.width()) {
               canGetIntoView -= slide.$element.outerWidth(true);
-              break;
+              canGetIntoViewMinusPadding = slide.$element.width();
+              if ((canGetIntoViewMinusPadding + canGetIntoView) <= $scope.$viewport.width()) {
+                canGetIntoView += slide.$element.outerWidth(true);
+              } else {
+                break;
+              }
             }
             currentPosition += 1;
           }
           outOfViewportSlide = $scope.activeSlides[currentPosition];
           if (angular.isUndefined(outOfViewportSlide)) {
-            totalLeft = 0;
+            offSetBy = 0;
           } else {
             offSetBy = (canGetIntoView + outOfViewportSlide.$element.outerWidth(true)) - $scope.$viewport.width();
           }
@@ -175,11 +195,7 @@
         return $scope.prevSlide = function($event) {
           var slide;
           slide = $scope.activeSlides[$scope.currentIndex - 1];
-          if ($scope.offsetLeft) {
-            $scope.leftPosition += $scope.offsetLeft;
-            $scope.offsetLeft = null;
-            return $scope.currentIndex -= 1;
-          } else if (slide) {
+          if (slide) {
             $scope.leftPosition += slide.$element.outerWidth(true);
             $scope.currentIndex -= 1;
             if (slide === $scope.activeSlides[0] && $scope.leftPosition !== 0) {
