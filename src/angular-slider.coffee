@@ -145,7 +145,7 @@ slider.directive 'slider', ->
         outOfViewportSlide = $scope.activeSlides[currentPosition]
 
         if angular.isUndefined(outOfViewportSlide)
-          totalLeft = 0
+          offSetBy = 0
         else
           offSetBy = (canGetIntoView + outOfViewportSlide.$element.outerWidth(true)) - $scope.$viewport.width()
 
