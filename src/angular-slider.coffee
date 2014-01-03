@@ -79,18 +79,29 @@ slider.directive 'slider', ->
 
       $scope.goToSlide= (manualSlide) ->
 
-        leftPosition = index = 0
+        leftPosition = 0
+        [totalInView, totalLeft] = $scope.countInViewPort()
+        slideIndex = _.indexOf($scope.activeSlides, manualSlide)
+        isSlide = $scope.activeSlides[slideIndex + totalInView]
 
-        for slide in $scope.activeSlides
+        if not angular.isUndefined(isSlide) and $scope.currentIndex != 0
+          for slide in $scope.activeSlides
+            if slide == $scope.activeSlides[$scope.activeSlides.length - 1]
+              leftPosition += totalLeft
+            else if slide == manualSlide
+              break
+            else
+              leftPosition += slide.$element.outerWidth(true)
 
-          if slide is manualSlide
-            break
+        else if slideIndex == 0
+            leftPosition = 0
 
-          index += 1
-          leftPosition += slide.$element.outerWidth(true)
+        else
+          for slide in $scope.activeSlides[0 .. slideIndex]
+              leftPosition += slide.$element.outerWidth(true)
 
+        $scope.currentIndex = slideIndex
         $scope.leftPosition = -(leftPosition)
-        $scope.currentIndex = index
 
       $scope.nextSlide = () ->
         slide = $scope.activeSlides[$scope.currentIndex + 1]
