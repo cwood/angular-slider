@@ -131,8 +131,15 @@ slider.directive 'slider', ->
         for slide in $scope.activeSlides[$scope.currentIndex .. $scope.activeSlides.length - 1]
           canGetIntoView += slide.$element.outerWidth(true)
           if canGetIntoView > $scope.$viewport.width()
+
             canGetIntoView -= slide.$element.outerWidth(true) # Remove since this is out of viewport
-            break
+            canGetIntoViewMinusPadding = slide.$element.width() # See if we can still get in with just padding removed.
+
+            if (canGetIntoViewMinusPadding + canGetIntoView) <= $scope.$viewport.width()
+              canGetIntoView += slide.$element.outerWidth(true)
+            else
+              break
+
           currentPosition += 1
 
         outOfViewportSlide = $scope.activeSlides[currentPosition]
