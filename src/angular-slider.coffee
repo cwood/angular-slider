@@ -175,11 +175,7 @@ slider.directive 'slider', ->
       $scope.prevSlide = ($event) ->
         slide = $scope.activeSlides[$scope.currentIndex - 1]
 
-        if $scope.offsetLeft
-          $scope.leftPosition += $scope.offsetLeft
-          $scope.offsetLeft = null # set back to null
-          $scope.currentIndex -= 1
-        else if slide
+        if slide
           $scope.leftPosition += slide.$element.outerWidth(true)
           $scope.currentIndex -= 1
           if slide is $scope.activeSlides[0] and $scope.leftPosition != 0
