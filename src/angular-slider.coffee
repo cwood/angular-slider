@@ -63,7 +63,7 @@ slider.directive 'slider', ->
         if not arraysAreEqual oldSlides, newSlides
           $scope.leftPosition = $scope.currentIndex = 0
 
-        $scope.totalWidth = totalWidth
+        $scope.totalWidth = Math.ceil(totalWidth / 10) * 10
 
       $scope.$watch 'slides.length', ->
         $scope.setActiveSlides()
@@ -82,6 +82,7 @@ slider.directive 'slider', ->
         leftPosition = 0
         [totalInView, totalLeft] = $scope.countInViewPort()
         slideIndex = _.indexOf($scope.activeSlides, manualSlide)
+        console.log slideIndex
         isSlide = $scope.activeSlides[slideIndex + totalInView]
 
         if not angular.isUndefined(isSlide) and $scope.currentIndex != 0
@@ -272,12 +273,13 @@ slider.directive 'slide', ->
       if $scope.$viewport.slideMultiple and $scope.isResponsive
         return Math.round($scope.getResponsiveWidth())
 
-      return $scope.$viewport.outerWidth(true)
+      totalWidth = $scope.$viewport.width() - (parseInt($element.css('padding-left')) + parseInt($element.css('padding-right')))
+      return Math.round(totalWidth)
 
-    $element.width(Math.round($scope.getWidth()))
+    $element.width($scope.getWidth())
 
     $element.css
-      display: if $element.css('display') != 'none' then 'inline-block' else 'none'
+      display: if $element.css('display') != 'none' then 'block' else 'none'
       float: 'left'
 
     angular.element($window).bind 'orientationchange resize', ->
