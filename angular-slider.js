@@ -81,7 +81,7 @@
           if (!arraysAreEqual(oldSlides, newSlides)) {
             $scope.leftPosition = $scope.currentIndex = 0;
           }
-          return $scope.totalWidth = totalWidth;
+          return $scope.totalWidth = Math.ceil(totalWidth / 10) * 10;
         });
         $scope.$watch('slides.length', function() {
           return $scope.setActiveSlides();
@@ -99,6 +99,7 @@
           leftPosition = 0;
           _ref = $scope.countInViewPort(), totalInView = _ref[0], totalLeft = _ref[1];
           slideIndex = _.indexOf($scope.activeSlides, manualSlide);
+          console.log(slideIndex);
           isSlide = $scope.activeSlides[slideIndex + totalInView];
           if (!angular.isUndefined(isSlide) && $scope.currentIndex !== 0) {
             _ref1 = $scope.activeSlides;
@@ -273,7 +274,7 @@
           return parseInt($scope.$slider.outerWidth(true)) * (responsiveWidth / 100.00);
         };
         $scope.getWidth = function() {
-          var elementCssWidth;
+          var elementCssWidth, totalWidth;
           if ($scope.widthOfWindow) {
             return $($window).width();
           }
@@ -287,11 +288,12 @@
           if ($scope.$viewport.slideMultiple && $scope.isResponsive) {
             return Math.round($scope.getResponsiveWidth());
           }
-          return $scope.$viewport.outerWidth(true);
+          totalWidth = $scope.$viewport.width() - (parseInt($element.css('padding-left')) + parseInt($element.css('padding-right')));
+          return Math.round(totalWidth);
         };
-        $element.width(Math.round($scope.getWidth()));
+        $element.width($scope.getWidth());
         $element.css({
-          display: $element.css('display') !== 'none' ? 'inline-block' : 'none',
+          display: $element.css('display') !== 'none' ? 'block' : 'none',
           float: 'left'
         });
         angular.element($window).bind('orientationchange resize', function() {
