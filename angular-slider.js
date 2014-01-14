@@ -274,7 +274,7 @@
           return parseInt($scope.$slider.outerWidth(true)) * (responsiveWidth / 100.00);
         };
         $scope.getWidth = function() {
-          var elementCssWidth, totalWidth;
+          var elementCssWidth;
           if ($scope.widthOfWindow) {
             return $($window).width();
           }
@@ -288,8 +288,7 @@
           if ($scope.$viewport.slideMultiple && $scope.isResponsive) {
             return Math.round($scope.getResponsiveWidth());
           }
-          totalWidth = $scope.$viewport.width() - (parseInt($element.css('padding-left')) + parseInt($element.css('padding-right')));
-          return Math.round(totalWidth);
+          return Math.round($scope.$viewport.width());
         };
         $element.width($scope.getWidth());
         $element.css({
