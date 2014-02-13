@@ -99,7 +99,6 @@
           leftPosition = 0;
           _ref = $scope.countInViewPort(), totalInView = _ref[0], totalLeft = _ref[1];
           slideIndex = _.indexOf($scope.activeSlides, manualSlide);
-          console.log(slideIndex);
           isSlide = $scope.activeSlides[slideIndex + totalInView];
           if (!angular.isUndefined(isSlide) && $scope.currentIndex !== 0) {
             _ref1 = $scope.activeSlides;
