@@ -82,7 +82,6 @@ slider.directive 'slider', ->
         leftPosition = 0
         [totalInView, totalLeft] = $scope.countInViewPort()
         slideIndex = _.indexOf($scope.activeSlides, manualSlide)
-        console.log slideIndex
         isSlide = $scope.activeSlides[slideIndex + totalInView]
 
         if not angular.isUndefined(isSlide) and $scope.currentIndex != 0
