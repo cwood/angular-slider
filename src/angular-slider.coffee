@@ -2,7 +2,6 @@ slider = angular.module('ngSlider', ['ngTouch'])
 
 slider.directive 'slider', ->
     restrict: 'A'
-    scope: true
     controller: ($scope, $element, $window, $timeout) ->
       $scope.slides = $scope.activeSlides = []
       $scope.leftPosition = $scope.currentIndex = $scope.totalWidth= 0
