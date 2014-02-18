@@ -6,7 +6,6 @@
   slider.directive('slider', function() {
     return {
       restrict: 'A',
-      scope: true,
       controller: function($scope, $element, $window, $timeout) {
         var arraysAreEqual;
         $scope.slides = $scope.activeSlides = [];
