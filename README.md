@@ -1,7 +1,7 @@
 Angular Slider
 =============================
 
-[![Build Status](https://magnum.travis-ci.com/hzdg/angular-slider.png?token=JSaJz6K8fcgAdvJmtR9u&branch=master)](https://magnum.travis-ci.com/hzdg/angular-slider)
+[![Build Status](https://travis-ci.org/cwood/angular-slider.png)](https://travis-ci.org/cwood/angular-slider)
 
 A generic slider for single and multi items in a viewport.
 Also responsive.
