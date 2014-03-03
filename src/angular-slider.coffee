@@ -2,6 +2,7 @@ slider = angular.module('ngSlider', ['ngTouch'])
 
 slider.directive 'slider', ->
     restrict: 'A'
+    scope: true
     controller: ($scope, $element, $window, $timeout) ->
       $scope.slides = $scope.activeSlides = []
       $scope.leftPosition = $scope.currentIndex = $scope.totalWidth= 0
@@ -96,7 +97,7 @@ slider.directive 'slider', ->
             leftPosition = 0
 
         else
-          for slide in $scope.activeSlides[0 .. slideIndex]
+          for slide in $scope.activeSlides[0 .. slideIndex - 1]
               leftPosition += slide.$element.outerWidth(true)
 
         $scope.currentIndex = slideIndex
@@ -155,7 +156,7 @@ slider.directive 'slider', ->
 
         $scope.isFirstSlide = (if currentSlide is $scope.activeSlides[0] then true else false)
 
-        if not $scope.$viewport.slideMultiple
+        if not $scope?.$viewport?.slideMultiple or $scope?.$viewport?.$slideMutiple is undefined
           $scope.isLastSlide = (if currentSlide is $scope.activeSlides[$scope.activeSlides.length - 1] then true else false)
         else
           [totalInView, totalLeft] = $scope.countInViewPort()
