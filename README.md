@@ -6,6 +6,11 @@ Angular Slider
 A generic slider for single and multi items in a viewport.
 Also responsive.
 
+Install
+-------------------
+
+``bower install angular-ngslider``
+
 Directives
 ----------------------------
 
