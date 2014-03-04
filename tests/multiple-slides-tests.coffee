@@ -37,7 +37,7 @@ describe "Multiple Slides Off The Viewport:", ->
     $scope = slider.scope()
 
   it "should toggle on slides multiple boolean", ->
-    expect($scope.$viewport.slideMultiple).toBe true
+    expect($scope.slideMultiple).toBe true
 
   it "should have 5 active slides", ->
     expect($scope.activeSlides.length).toBe 5
@@ -87,7 +87,7 @@ describe "multiple slides in the viewport", ->
     $scope = slider.scope()
 
   it "should be multiple slides", ->
-    expect($scope.$viewport.slideMultiple).toBe true
+    expect($scope.slideMultiple).toBe true
 
   it "should be on both the first and last slide", ->
     expect($scope.isFirstSlide).toBe true
