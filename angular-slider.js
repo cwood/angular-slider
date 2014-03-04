@@ -6,6 +6,7 @@
   slider.directive('slider', function() {
     return {
       restrict: 'A',
+      scope: true,
       controller: function($scope, $element, $window, $timeout) {
         var arraysAreEqual;
         $scope.slides = $scope.activeSlides = [];
@@ -114,7 +115,7 @@
           } else if (slideIndex === 0) {
             leftPosition = 0;
           } else {
-            _ref2 = $scope.activeSlides.slice(0, +slideIndex + 1 || 9e9);
+            _ref2 = $scope.activeSlides.slice(0, +(slideIndex - 1) + 1 || 9e9);
             for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
               slide = _ref2[_j];
               leftPosition += slide.$element.outerWidth(true);
@@ -126,7 +127,7 @@
         $scope.nextSlide = function() {
           var slide, totalInView, totalLeft, _ref;
           slide = $scope.activeSlides[$scope.currentIndex + 1];
-          if ($scope.$viewport.slideMultiple) {
+          if ($scope.slideMultiple) {
             _ref = $scope.countInViewPort(), totalInView = _ref[0], totalLeft = _ref[1];
             slide = $scope.activeSlides[$scope.currentIndex + totalInView];
             if (slide) {
@@ -173,7 +174,7 @@
           var currentSlide, totalInView, totalLeft, _ref;
           currentSlide = $scope.getCurrentSlide();
           $scope.isFirstSlide = (currentSlide === $scope.activeSlides[0] ? true : false);
-          if (!$scope.$viewport.slideMultiple) {
+          if (!$scope.slideMultiple) {
             return $scope.isLastSlide = (currentSlide === $scope.activeSlides[$scope.activeSlides.length - 1] ? true : false);
           } else {
             _ref = $scope.countInViewPort(), totalInView = _ref[0], totalLeft = _ref[1];
@@ -216,7 +217,7 @@
       controller: function($scope, $element, $attrs, $interval) {
         var _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
         $scope.$viewport = $element;
-        $scope.$viewport.slideMultiple = (_ref = $scope.$eval($attrs.slideMultiple)) != null ? _ref : false;
+        $scope.slideMultiple = (_ref = $scope.$eval($attrs.slideMultiple)) != null ? _ref : false;
         $scope.autoScroll = (_ref1 = $scope.$eval($attrs.autoScroll)) != null ? _ref1 : false;
         $scope.defaultWidth = (_ref2 = $attrs.defaultWidth) != null ? _ref2 : false;
         $scope.widthOfWindow = (_ref3 = $attrs.widthOfWindow) != null ? _ref3 : false;
@@ -279,11 +280,11 @@
           if ($scope.defaultWidth) {
             return parseInt($scope.defaultWidth);
           }
-          if ($scope.$viewport.slideMultiple && !$scope.isResponsive) {
+          if ($scope.slideMultiple && !$scope.isResponsive) {
             elementCssWidth = $element.outerWidth(true);
             return parseInt(elementCssWidth);
           }
-          if ($scope.$viewport.slideMultiple && $scope.isResponsive) {
+          if ($scope.slideMultiple && $scope.isResponsive) {
             return Math.round($scope.getResponsiveWidth());
           }
           return Math.round($scope.$viewport.width());
