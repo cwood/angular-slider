@@ -106,7 +106,7 @@ slider.directive 'slider', ->
       $scope.nextSlide = () ->
         slide = $scope.activeSlides[$scope.currentIndex + 1]
 
-        if $scope.$viewport.slideMultiple
+        if $scope.slideMultiple
 
           [totalInView, totalLeft] = $scope.countInViewPort()
           slide = $scope.activeSlides[$scope.currentIndex + totalInView]
@@ -156,7 +156,7 @@ slider.directive 'slider', ->
 
         $scope.isFirstSlide = (if currentSlide is $scope.activeSlides[0] then true else false)
 
-        if not $scope?.$viewport?.slideMultiple or $scope?.$viewport?.$slideMutiple is undefined
+        if not $scope.slideMultiple
           $scope.isLastSlide = (if currentSlide is $scope.activeSlides[$scope.activeSlides.length - 1] then true else false)
         else
           [totalInView, totalLeft] = $scope.countInViewPort()
@@ -197,9 +197,10 @@ slider.directive 'sliderViewport', ->
     </div>
     """
   controller: ($scope, $element, $attrs, $interval) ->
+
     $scope.$viewport = $element
 
-    $scope.$viewport.slideMultiple = $scope.$eval($attrs.slideMultiple) ? false
+    $scope.slideMultiple = $scope.$eval($attrs.slideMultiple) ? false
     $scope.autoScroll = $scope.$eval($attrs.autoScroll) ? false
 
     $scope.defaultWidth = $attrs.defaultWidth ? false
@@ -265,11 +266,11 @@ slider.directive 'slide', ->
       if $scope.defaultWidth
         return parseInt($scope.defaultWidth)
 
-      if $scope.$viewport.slideMultiple and not $scope.isResponsive
+      if $scope.slideMultiple and not $scope.isResponsive
         elementCssWidth = $element.outerWidth(true)
         return parseInt(elementCssWidth)
 
-      if $scope.$viewport.slideMultiple and $scope.isResponsive
+      if $scope.slideMultiple and $scope.isResponsive
         return Math.round($scope.getResponsiveWidth())
 
       return Math.round($scope.$viewport.width())
