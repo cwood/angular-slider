@@ -94,8 +94,9 @@
         });
         angular.element($window).bind('resize orientationchange', _.debounce(function() {
           $scope.setActiveSlides(true);
-          $scope.goToSlide($scope.getCurrentSlide());
-          return $scope.setButtonsActivity();
+          return $scope.goToSlide($scope.getCurrentSlide()).then(function() {
+            return $scope.setButtonsActivity();
+          });
         }, 500));
         $scope.getCurrentSlide = function() {
           return $scope.activeSlides[$scope.currentIndex];
