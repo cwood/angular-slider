@@ -7,12 +7,17 @@
     return {
       restrict: 'A',
       scope: true,
-      controller: function($scope, $element, $window, $timeout) {
+      controller: function($scope, $element, $window, $timeout, $attrs, $q) {
         var arraysAreEqual;
         $scope.slides = $scope.activeSlides = [];
         $scope.leftPosition = $scope.currentIndex = $scope.totalWidth = 0;
         $scope.$slider = $element;
         $scope.isResizing = false;
+        if ($attrs.ngShow) {
+          $scope.$watch($attrs.ngShow, function() {
+            return $scope.setActiveSlides(true);
+          });
+        }
         $scope.addSlide = function(slide, element) {
           slide.$element = element;
           $scope.slides.push(slide);
@@ -66,8 +71,9 @@
             $scope.activeSlides = activeSlides;
           }
           if (recalcWidth === true) {
-            $scope.activeSlides = activeSlides;
-            return $scope.$apply();
+            return $scope.$apply(function() {
+              return $scope.activeSlides = activeSlides;
+            });
           }
         };
         $scope.$watch('activeSlides', function(oldSlides, newSlides) {
@@ -95,53 +101,68 @@
           return $scope.activeSlides[$scope.currentIndex];
         };
         $scope.goToSlide = function(manualSlide) {
-          var isSlide, leftPosition, slide, slideIndex, totalInView, totalLeft, _i, _j, _len, _len1, _ref, _ref1, _ref2;
-          leftPosition = 0;
-          _ref = $scope.countInViewPort(), totalInView = _ref[0], totalLeft = _ref[1];
-          slideIndex = _.indexOf($scope.activeSlides, manualSlide);
-          isSlide = $scope.activeSlides[slideIndex + totalInView];
-          if (!angular.isUndefined(isSlide) && $scope.currentIndex !== 0) {
-            _ref1 = $scope.activeSlides;
-            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-              slide = _ref1[_i];
-              if (slide === $scope.activeSlides[$scope.activeSlides.length - 1]) {
-                leftPosition += totalLeft;
-              } else if (slide === manualSlide) {
-                break;
-              } else {
+          var deferred;
+          deferred = $q.defer();
+          setTimeout(function() {
+            var isSlide, leftPosition, slide, slideIndex, totalInView, totalLeft, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+            leftPosition = 0;
+            _ref = $scope.countInViewPort(), totalInView = _ref[0], totalLeft = _ref[1];
+            slideIndex = _.indexOf($scope.activeSlides, manualSlide);
+            isSlide = $scope.activeSlides[slideIndex + totalInView];
+            if (!angular.isUndefined(isSlide) && $scope.currentIndex !== 0) {
+              _ref1 = $scope.activeSlides;
+              for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+                slide = _ref1[_i];
+                if (slide === $scope.activeSlides[$scope.activeSlides.length - 1]) {
+                  leftPosition += totalLeft;
+                } else if (slide === manualSlide) {
+                  break;
+                } else {
+                  leftPosition += slide.$element.outerWidth(true);
+                }
+              }
+            } else if (slideIndex === 0) {
+              leftPosition = 0;
+            } else {
+              _ref2 = $scope.activeSlides.slice(0, +(slideIndex - 1) + 1 || 9e9);
+              for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+                slide = _ref2[_j];
                 leftPosition += slide.$element.outerWidth(true);
               }
             }
-          } else if (slideIndex === 0) {
-            leftPosition = 0;
-          } else {
-            _ref2 = $scope.activeSlides.slice(0, +(slideIndex - 1) + 1 || 9e9);
-            for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-              slide = _ref2[_j];
-              leftPosition += slide.$element.outerWidth(true);
-            }
-          }
-          $scope.currentIndex = slideIndex;
-          return $scope.leftPosition = -leftPosition;
+            $scope.currentIndex = slideIndex;
+            $scope.leftPosition = -leftPosition;
+            return deferred.resolve(manualSlide);
+          });
+          return deferred.promise;
         };
         $scope.nextSlide = function() {
-          var slide, totalInView, totalLeft, _ref;
-          slide = $scope.activeSlides[$scope.currentIndex + 1];
-          if ($scope.slideMultiple) {
-            _ref = $scope.countInViewPort(), totalInView = _ref[0], totalLeft = _ref[1];
-            slide = $scope.activeSlides[$scope.currentIndex + totalInView];
-            if (slide) {
-              $scope.currentIndex += 1;
-              if (slide === $scope.activeSlides[$scope.activeSlides.length - 1]) {
-                return $scope.leftPosition -= totalLeft;
-              } else {
-                return $scope.leftPosition -= slide.$element.outerWidth(true);
+          var deferred;
+          deferred = $q.defer();
+          setTimeout(function() {
+            var slide, totalInView, totalLeft, _ref;
+            slide = $scope.activeSlides[$scope.currentIndex + 1];
+            if ($scope.slideMultiple) {
+              _ref = $scope.countInViewPort(), totalInView = _ref[0], totalLeft = _ref[1];
+              slide = $scope.activeSlides[$scope.currentIndex + totalInView];
+              if (slide) {
+                $scope.currentIndex += 1;
+                if (slide === $scope.activeSlides[$scope.activeSlides.length - 1]) {
+                  $scope.leftPosition -= totalLeft;
+                } else {
+                  $scope.leftPosition -= slide.$element.outerWidth(true);
+                }
+                return deferred.resolve(slide);
               }
+            } else if (slide) {
+              $scope.leftPosition -= slide.$element.outerWidth(true);
+              $scope.currentIndex += 1;
+              return deferred.resolve(slide);
+            } else {
+              return deferred.reject(slide);
             }
-          } else if (slide) {
-            $scope.leftPosition -= slide.$element.outerWidth(true);
-            return $scope.currentIndex += 1;
-          }
+          }, 10);
+          return deferred.promise;
         };
         $scope.countInViewPort = function() {
           var canGetIntoView, canGetIntoViewMinusPadding, currentPosition, offSetBy, outOfViewportSlide, slide, _i, _len, _ref;
@@ -193,15 +214,21 @@
           return $scope.setButtonsActivity();
         });
         return $scope.prevSlide = function($event) {
-          var slide;
-          slide = $scope.activeSlides[$scope.currentIndex - 1];
-          if (slide) {
-            $scope.leftPosition += slide.$element.outerWidth(true);
-            $scope.currentIndex -= 1;
-            if (slide === $scope.activeSlides[0] && $scope.leftPosition !== 0) {
-              return $scope.leftPosition = 0;
+          var deferred;
+          deferred = $q.defer();
+          setTimeout(function() {
+            var slide;
+            slide = $scope.activeSlides[$scope.currentIndex - 1];
+            if (slide) {
+              $scope.leftPosition += slide.$element.outerWidth(true);
+              $scope.currentIndex -= 1;
+              if (slide === $scope.activeSlides[0] && $scope.leftPosition !== 0) {
+                $scope.leftPosition = 0;
+              }
+              return deferred.resolve(slide);
             }
-          }
+          }, 10);
+          return deferred.promise;
         };
       }
     };
@@ -241,6 +268,7 @@
       controller: function($scope, $element, $attrs, $window, $document, $log) {
         $scope.isResponsive = false;
         $scope.responsiveWidth = {};
+        $scope.isCurrentSlide = false;
         $scope.addSlide($scope, $element);
         $scope.isActive = function() {
           return $element.is(':visbile');

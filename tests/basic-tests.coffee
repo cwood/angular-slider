@@ -38,9 +38,9 @@ describe "core slider", ->
     expect($scope.activeSlides.length).toBe 3
 
   it 'should keep active slides even on the next slide', ->
-    $scope.nextSlide()
-    expect($scope.currentIndex).toBe 1
-    expect($scope.leftPosition).toBe -150
+    $scope.nextSlide().then ->
+      expect($scope.currentIndex).toBe 1
+      expect($scope.leftPosition).toBe -150
 
   it 'should auto start scrolling as false', ->
     expect($scope.autoScroll).toBe false
@@ -50,64 +50,69 @@ describe "core slider", ->
 
   it 'should allow us to go to a specific slide', ->
     secondSlide = $scope.activeSlides[1]
-    $scope.goToSlide(secondSlide)
-    currentSlide = $scope.getCurrentSlide()
-    expect(currentSlide).toBe(secondSlide)
+    $scope.goToSlide(secondSlide).then ->
+      currentSlide = $scope.getCurrentSlide()
+      expect(currentSlide).toBe(secondSlide)
+
+  it 'next slide should return a promise', ->
+    promise = $scope.nextSlide()
+    expect(promise.then).toBeDefined()
 
   it 'should allow us to move to the next slide', ->
-    $scope.nextSlide()
-    activeSlide = $scope.getCurrentSlide()
-    expect(activeSlide).toBe($scope.activeSlides[1])
+    promise = $scope.nextSlide()
+    promise.then ->
+      activeSlide = $scope.getCurrentSlide()
+      expect(activeSlide).toBe($scope.activeSlides[1])
 
-    expect($scope.leftPosition).toBe -150
+      expect($scope.leftPosition).toBe -150
 
   it 'should allow us to move to the prev slide', ->
-    $scope.nextSlide()
-    activeSlide = $scope.getCurrentSlide()
+    promise = $scope.nextSlide()
+    promise.then ->
+      activeSlide = $scope.getCurrentSlide()
 
-    expect(activeSlide).toBe($scope.activeSlides[1])
-    expect($scope.leftPosition).toBe -150
+      expect(activeSlide).toBe($scope.activeSlides[1])
+      expect($scope.leftPosition).toBe -150
 
-    $scope.prevSlide()
-    activeSlide = $scope.getCurrentSlide()
+    $scope.prevSlide().then ->
+      activeSlide = $scope.getCurrentSlide()
 
-    expect(activeSlide).toBe($scope.activeSlides[0])
-    expect($scope.leftPosition).toBe 0
+      expect(activeSlide).toBe($scope.activeSlides[0])
+      expect($scope.leftPosition).toBe 0
 
   it 'shouldn\'t allow us to move past the last slide', ->
-    $scope.goToSlide($scope.activeSlides[$scope.activeSlides.length - 1])
-    $scope.nextSlide()
+    $scope.goToSlide($scope.activeSlides[$scope.activeSlides.length - 1]).then ->
+      promise = $scope.nextSlide()
 
-    expect($scope.currentIndex).toBe 2
+      promise.then ->
+        expect($scope.currentIndex).toBe 2
 
-    # should remain on 2 regardless since this is the last slide
-    $scope.nextSlide()
-    expect($scope.currentIndex).toBe 2
+      # should remain on 2 regardless since this is the last slide
+      anotherPromise = $scope.nextSlide()
+      anotherPromise.then ->
+        expect($scope.currentIndex).toBe 2
 
   it 'shoudn\'t allow us to move past the first slide', ->
 
-    $scope.prevSlide()
-    expect($scope.currentIndex).toBe 0
+    $scope.prevSlide().then ->
+      expect($scope.currentIndex).toBe 0
 
     # if user runs this function twice
-    $scope.prevSlide()
-    expect($scope.currentIndex).toBe 0
+    $scope.prevSlide().then ->
+      expect($scope.currentIndex).toBe 0
 
   it 'should set first slide to true when on the first slide', ->
     expect($scope.isFirstSlide).toBe true
 
-    $scope.nextSlide()
-    $scope.$apply() # since we are running this through karma
-
-    expect($scope.isFirstSlide).toBe false
+    promise = $scope.nextSlide()
+    promise.then ->
+      expect($scope.isFirstSlide).toBe false
 
   it 'should set last slide to true when on the last slide', ->
     expect($scope.isLastSlide).toBe false
 
-    $scope.goToSlide($scope.activeSlides[$scope.activeSlides.length - 1])
-    $scope.$apply() # since we are running this through karma
-
-    expect($scope.isLastSlide).toBe true
+    $scope.goToSlide($scope.activeSlides[$scope.activeSlides.length - 1]).then ->
+      expect($scope.isLastSlide).toBe true
 
   it "should still have 3 active slides when viewport is hidden", ->
     $scope.$viewport.hide()

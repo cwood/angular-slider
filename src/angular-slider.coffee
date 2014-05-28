@@ -3,11 +3,15 @@ slider = angular.module('ngSlider', ['ngTouch'])
 slider.directive 'slider', ->
     restrict: 'A'
     scope: true
-    controller: ($scope, $element, $window, $timeout) ->
+    controller: ($scope, $element, $window, $timeout, $attrs, $q) ->
       $scope.slides = $scope.activeSlides = []
       $scope.leftPosition = $scope.currentIndex = $scope.totalWidth= 0
       $scope.$slider = $element
       $scope.isResizing = false
+
+      if $attrs.ngShow
+        $scope.$watch $attrs.ngShow, ->
+          $scope.setActiveSlides(true)
 
       $scope.addSlide = (slide, element) ->
         slide.$element = element
@@ -50,8 +54,8 @@ slider.directive 'slider', ->
           $scope.activeSlides = activeSlides
 
         if recalcWidth is true
-          $scope.activeSlides = activeSlides
-          $scope.$apply()
+          $scope.$apply ->
+            $scope.activeSlides = activeSlides
 
       $scope.$watch 'activeSlides', (oldSlides, newSlides) ->
 
@@ -79,49 +83,67 @@ slider.directive 'slider', ->
 
       $scope.goToSlide= (manualSlide) ->
 
-        leftPosition = 0
-        [totalInView, totalLeft] = $scope.countInViewPort()
-        slideIndex = _.indexOf($scope.activeSlides, manualSlide)
-        isSlide = $scope.activeSlides[slideIndex + totalInView]
+        deferred = $q.defer()
 
-        if not angular.isUndefined(isSlide) and $scope.currentIndex != 0
-          for slide in $scope.activeSlides
-            if slide == $scope.activeSlides[$scope.activeSlides.length - 1]
-              leftPosition += totalLeft
-            else if slide == manualSlide
-              break
-            else
-              leftPosition += slide.$element.outerWidth(true)
+        setTimeout ->
 
-        else if slideIndex == 0
-            leftPosition = 0
+          leftPosition = 0
+          [totalInView, totalLeft] = $scope.countInViewPort()
+          slideIndex = _.indexOf($scope.activeSlides, manualSlide)
+          isSlide = $scope.activeSlides[slideIndex + totalInView]
 
-        else
-          for slide in $scope.activeSlides[0 .. slideIndex - 1]
-              leftPosition += slide.$element.outerWidth(true)
+          if not angular.isUndefined(isSlide) and $scope.currentIndex != 0
+            for slide in $scope.activeSlides
+              if slide == $scope.activeSlides[$scope.activeSlides.length - 1]
+                leftPosition += totalLeft
+              else if slide == manualSlide
+                break
+              else
+                leftPosition += slide.$element.outerWidth(true)
 
-        $scope.currentIndex = slideIndex
-        $scope.leftPosition = -(leftPosition)
+          else if slideIndex == 0
+              leftPosition = 0
+
+          else
+            for slide in $scope.activeSlides[0 .. slideIndex - 1]
+                leftPosition += slide.$element.outerWidth(true)
+
+          $scope.currentIndex = slideIndex
+          $scope.leftPosition = -(leftPosition)
+          deferred.resolve(manualSlide)
+
+        deferred.promise
 
       $scope.nextSlide = () ->
-        slide = $scope.activeSlides[$scope.currentIndex + 1]
+        deferred = $q.defer()
 
-        if $scope.slideMultiple
+        setTimeout ->
+          slide = $scope.activeSlides[$scope.currentIndex + 1]
 
-          [totalInView, totalLeft] = $scope.countInViewPort()
-          slide = $scope.activeSlides[$scope.currentIndex + totalInView]
+          if $scope.slideMultiple
 
-          if slide
+            [totalInView, totalLeft] = $scope.countInViewPort()
+            slide = $scope.activeSlides[$scope.currentIndex + totalInView]
+
+            if slide
+              $scope.currentIndex += 1
+
+              if slide == $scope.activeSlides[$scope.activeSlides.length - 1]
+                $scope.leftPosition -= totalLeft
+              else
+                $scope.leftPosition -= slide.$element.outerWidth(true)
+
+              deferred.resolve(slide)
+
+          else if slide
+            $scope.leftPosition -= slide.$element.outerWidth(true)
             $scope.currentIndex += 1
+            deferred.resolve(slide)
+          else
+            deferred.reject(slide)
+        , 10
 
-            if slide == $scope.activeSlides[$scope.activeSlides.length - 1]
-              $scope.leftPosition -= totalLeft
-            else
-              $scope.leftPosition -= slide.$element.outerWidth(true)
-
-        else if slide
-          $scope.leftPosition -= slide.$element.outerWidth(true)
-          $scope.currentIndex += 1
+        return deferred.promise
 
       $scope.countInViewPort = ->
 
@@ -173,13 +195,21 @@ slider.directive 'slider', ->
         $scope.setButtonsActivity()
 
       $scope.prevSlide = ($event) ->
-        slide = $scope.activeSlides[$scope.currentIndex - 1]
+        deferred = $q.defer()
 
-        if slide
-          $scope.leftPosition += slide.$element.outerWidth(true)
-          $scope.currentIndex -= 1
-          if slide is $scope.activeSlides[0] and $scope.leftPosition != 0
-            $scope.leftPosition = 0
+        setTimeout ->
+          slide = $scope.activeSlides[$scope.currentIndex - 1]
+
+          if slide
+            $scope.leftPosition += slide.$element.outerWidth(true)
+            $scope.currentIndex -= 1
+            if slide is $scope.activeSlides[0] and $scope.leftPosition != 0
+              $scope.leftPosition = 0
+
+            deferred.resolve(slide)
+        , 10
+
+        deferred.promise
 
 slider.directive 'sliderViewport', ->
   restrict: 'E'
@@ -224,6 +254,7 @@ slider.directive 'slide', ->
 
     $scope.isResponsive = false
     $scope.responsiveWidth = {}
+    $scope.isCurrentSlide = false
 
     $scope.addSlide $scope, $element
 

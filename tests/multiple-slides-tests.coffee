@@ -46,8 +46,9 @@ describe "Multiple Slides Off The Viewport:", ->
     expect($scope.totalWidth).toBe(150*5)
 
   it "on next slide left should be -200px", ->
-    $scope.nextSlide()
-    expect($scope.leftPosition).toBe(-150)
+    promise = $scope.nextSlide()
+    promise.then ->
+      expect($scope.leftPosition).toBe(-150)
 
   it "should be on the first slide and not the last slide", ->
     expect($scope.isFirstSlide).toBe true
@@ -139,9 +140,8 @@ describe "hidden slides", ->
     expect($scope.isFirstSlide).toBe true
 
   it "when on the last active slide isLastSlide should be true and isFirstSlide should be true", ->
-    $scope.goToSlide($scope.activeSlides[$scope.activeSlides.length - 1])
-    $scope.$digest()
-    expect($scope.isLastSlide).toBe true
+    $scope.goToSlide($scope.activeSlides[$scope.activeSlides.length - 1]).then ->
+      expect($scope.isLastSlide).toBe true
 
 
 describe "hidden slider at start with default slides", ->
