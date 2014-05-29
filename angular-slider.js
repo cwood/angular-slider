@@ -71,9 +71,7 @@
             $scope.activeSlides = activeSlides;
           }
           if (recalcWidth === true) {
-            return $scope.$apply(function() {
-              return $scope.activeSlides = activeSlides;
-            });
+            return $scope.activeSlides = activeSlides;
           }
         };
         $scope.$watch('activeSlides', function(oldSlides, newSlides) {
@@ -104,7 +102,7 @@
         $scope.goToSlide = function(manualSlide) {
           var deferred;
           deferred = $q.defer();
-          setTimeout(function() {
+          $timeout(function() {
             var isSlide, leftPosition, slide, slideIndex, totalInView, totalLeft, _i, _j, _len, _len1, _ref, _ref1, _ref2;
             leftPosition = 0;
             _ref = $scope.countInViewPort(), totalInView = _ref[0], totalLeft = _ref[1];
@@ -140,7 +138,7 @@
         $scope.nextSlide = function() {
           var deferred;
           deferred = $q.defer();
-          setTimeout(function() {
+          $timeout(function() {
             var slide, totalInView, totalLeft, _ref;
             slide = $scope.activeSlides[$scope.currentIndex + 1];
             if ($scope.slideMultiple) {
@@ -162,7 +160,7 @@
             } else {
               return deferred.reject(slide);
             }
-          }, 10);
+          });
           return deferred.promise;
         };
         $scope.countInViewPort = function() {
@@ -217,7 +215,7 @@
         return $scope.prevSlide = function($event) {
           var deferred;
           deferred = $q.defer();
-          setTimeout(function() {
+          $timeout(function() {
             var slide;
             slide = $scope.activeSlides[$scope.currentIndex - 1];
             if (slide) {
@@ -228,7 +226,7 @@
               }
               return deferred.resolve(slide);
             }
-          }, 10);
+          });
           return deferred.promise;
         };
       }
