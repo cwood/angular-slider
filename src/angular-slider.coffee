@@ -84,7 +84,7 @@ slider.directive 'slider', ->
 
         deferred = $q.defer()
 
-        setTimeout ->
+        $timeout ->
 
           leftPosition = 0
           [totalInView, totalLeft] = $scope.countInViewPort()
@@ -116,7 +116,7 @@ slider.directive 'slider', ->
       $scope.nextSlide = () ->
         deferred = $q.defer()
 
-        setTimeout ->
+        $timeout ->
           slide = $scope.activeSlides[$scope.currentIndex + 1]
 
           if $scope.slideMultiple
@@ -140,7 +140,6 @@ slider.directive 'slider', ->
             deferred.resolve(slide)
           else
             deferred.reject(slide)
-        , 10
 
         return deferred.promise
 
@@ -196,7 +195,7 @@ slider.directive 'slider', ->
       $scope.prevSlide = ($event) ->
         deferred = $q.defer()
 
-        setTimeout ->
+        $timeout ->
           slide = $scope.activeSlides[$scope.currentIndex - 1]
 
           if slide
@@ -206,7 +205,6 @@ slider.directive 'slider', ->
               $scope.leftPosition = 0
 
             deferred.resolve(slide)
-        , 10
 
         deferred.promise
 
