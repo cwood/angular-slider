@@ -54,8 +54,7 @@ slider.directive 'slider', ->
           $scope.activeSlides = activeSlides
 
         if recalcWidth is true
-          $scope.$apply ->
-            $scope.activeSlides = activeSlides
+          $scope.activeSlides = activeSlides
 
       $scope.$watch 'activeSlides', (oldSlides, newSlides) ->
 
@@ -74,8 +73,8 @@ slider.directive 'slider', ->
 
       angular.element($window).bind 'resize orientationchange', _.debounce( ->
         $scope.setActiveSlides(true)
-        $scope.goToSlide($scope.getCurrentSlide()) # Go to the users current slide
-        $scope.setButtonsActivity() # Set the buttons after resize.
+        $scope.goToSlide($scope.getCurrentSlide()).then -> # Go to the users current slide
+          $scope.setButtonsActivity() # Set the buttons after resize.
       , 500)
 
       $scope.getCurrentSlide = ->
