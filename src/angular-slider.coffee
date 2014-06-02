@@ -54,10 +54,9 @@ slider.directive 'slider', ->
           $scope.activeSlides = activeSlides
 
         if recalcWidth is true
-          $scope.activeSlides = activeSlides
+          $scope.updateWidth()
 
-      $scope.$watch 'activeSlides', (oldSlides, newSlides) ->
-
+      $scope.updateWidth = (oldSlides, newSlides) ->
         totalWidth = 0
 
         for slide in $scope.activeSlides
@@ -68,8 +67,9 @@ slider.directive 'slider', ->
 
         $scope.totalWidth = Math.ceil(totalWidth / 10) * 10
 
-      $scope.$watch 'slides.length', ->
-        $scope.setActiveSlides()
+      $scope.$watch 'activeSlides', $scope.updateWidth
+
+      $scope.$watch 'slides.length', $scope.setActiveSlides
 
       angular.element($window).bind 'resize orientationchange', _.debounce( ->
         $scope.setActiveSlides(true)
@@ -80,7 +80,7 @@ slider.directive 'slider', ->
       $scope.getCurrentSlide = ->
         return $scope.activeSlides[$scope.currentIndex]
 
-      $scope.goToSlide= (manualSlide) ->
+      $scope.goToSlide= (manualSlide, doTransition = true) ->
 
         deferred = $q.defer()
 
