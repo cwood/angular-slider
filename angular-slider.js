@@ -71,10 +71,10 @@
             $scope.activeSlides = activeSlides;
           }
           if (recalcWidth === true) {
-            return $scope.activeSlides = activeSlides;
+            return $scope.updateWidth();
           }
         };
-        $scope.$watch('activeSlides', function(oldSlides, newSlides) {
+        $scope.updateWidth = function(oldSlides, newSlides) {
           var slide, totalWidth, _i, _len, _ref;
           totalWidth = 0;
           _ref = $scope.activeSlides;
@@ -86,10 +86,9 @@
             $scope.leftPosition = $scope.currentIndex = 0;
           }
           return $scope.totalWidth = Math.ceil(totalWidth / 10) * 10;
-        });
-        $scope.$watch('slides.length', function() {
-          return $scope.setActiveSlides();
-        });
+        };
+        $scope.$watch('activeSlides', $scope.updateWidth);
+        $scope.$watch('slides.length', $scope.setActiveSlides);
         angular.element($window).bind('resize orientationchange', _.debounce(function() {
           $scope.setActiveSlides(true);
           return $scope.goToSlide($scope.getCurrentSlide()).then(function() {
@@ -99,8 +98,11 @@
         $scope.getCurrentSlide = function() {
           return $scope.activeSlides[$scope.currentIndex];
         };
-        $scope.goToSlide = function(manualSlide) {
+        $scope.goToSlide = function(manualSlide, doTransition) {
           var deferred;
+          if (doTransition == null) {
+            doTransition = true;
+          }
           deferred = $q.defer();
           $timeout(function() {
             var isSlide, leftPosition, slide, slideIndex, totalInView, totalLeft, _i, _j, _len, _len1, _ref, _ref1, _ref2;
